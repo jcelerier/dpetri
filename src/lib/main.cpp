@@ -77,18 +77,8 @@ void test(PetriNet& net, Clock& clock)
 	clock.stop();
 }
 
-void clientTest()
+void petriTest()
 {
-	OscReceiver r;
-	Clock c;
-	ClockClient h(c);
-	auto f = std::bind(&ClockClient::clockMessage, &h, std::placeholders::_1);
-	r.addHandler("/clock", f);
-}
-
-int main()
-{
-	clientTest();
 	PetriNet net;
 
 	auto& i = net.createPlace("init");
@@ -149,10 +139,32 @@ int main()
 	net.createArc(p9, t8);
 
 	net.createArc(t8, f);
-//	std::thread t(&Clock::run, &c);
+	std::thread t(&Clock::run, &c);
 
-//	test(net, c);
-//	t.join();
+	test(net, c);
+	t.join();
+}
+
+void clientTest()
+{
+	OscReceiver r;
+	Clock c;
+	ClockClient h(c);
+	auto f = std::bind(&ClockClient::clockMessage, &h, std::placeholders::_1);
+	r.addHandler("/clock", f);
+	r.run();
+}
+
+void serverTest()
+{
+	Clock c(500);
+	ClockServer s(c);
+	c.run();
+}
+
+int main()
+{
+	clientTest();
 	return 0;
 }
 

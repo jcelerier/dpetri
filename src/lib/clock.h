@@ -5,6 +5,10 @@
 #include <iostream>
 #include <functional>
 #include <vector>
+
+#define DEBUG(x) std::cerr << #x << ": " << ( x ) << std::endl;
+
+
 class Clock
 {
 	public:
@@ -24,6 +28,7 @@ class Clock
 
 		void set(const time_type t)
 		{
+			DEBUG(t)
 			_time = t;
 		}
 
