@@ -1,5 +1,6 @@
 HEADERS += \
-    ../lib/clock.h \
-    ../lib/clockclient.h \
-    ../lib/clockserver.h \
-    ../lib/oscreceiver.h
+    $$PWD/clock.h \
+    $$PWD/clockclient.h \
+    $$PWD/clockserver.h \
+    $$PWD/oscreceiver.h \
+    $$PWD/oscsender.h

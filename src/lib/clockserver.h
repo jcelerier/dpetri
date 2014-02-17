@@ -1,32 +1,33 @@
 #pragma once
 #include "clock.h"
-#include <ip/UdpSocket.h>
+#include "oscsender.h"
 #include <osc/OscOutboundPacketStream.h>
 #include <vector>
 
 class ClockServer
 {
 	public:
-		ClockServer(Clock& clock):
-			p(buffer.data(), buffer.size())
+		ClockServer(Clock& clock, OscSender& sender):
+			p(buffer.data(), buffer.size()),
+			_sender(sender)
 		{
 			clock.addHandle(std::bind(&ClockServer::send, this, std::placeholders::_1));
 		}
-
 
 		void send(long long int i)
 		{
 			p.Clear();
 
 			p << osc::BeginBundleImmediate
-			  << osc::BeginMessage( "/clock" ) << (osc::int32)i << osc::EndMessage
+			  << osc::BeginMessage( "/clock" ) << (osc::int32) i << osc::EndMessage
 			  << osc::EndBundle;
 
-			transmitSocket.Send( p.Data(), p.Size() );
+			_sender.send(p);
 		}
 
 	private:
-		UdpTransmitSocket transmitSocket{IpEndpointName( "127.0.0.1", 9876 ) };
 		std::array<char, 1024> buffer;
 		osc::OutboundPacketStream p;
+
+		OscSender& _sender;
 };

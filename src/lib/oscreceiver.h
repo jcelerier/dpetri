@@ -5,19 +5,16 @@
 #include <functional>
 #include <map>
 
-
-
 class OscReceiver
 {
 	public:
 		using message_handler = std::function<void(osc::ReceivedMessageArgumentStream)>;
 
-		OscReceiver():
-			socket(IpEndpointName( IpEndpointName::ANY_ADDRESS, 9876),
-			  &_impl)
+		OscReceiver(unsigned int port):
+			socket(IpEndpointName(IpEndpointName::ANY_ADDRESS, port), &_impl)
 		{
-
 		}
+
 		void run()
 		{
 			socket.Run();
@@ -33,7 +30,6 @@ class OscReceiver
 		class : public osc::OscPacketListener
 		{
 			public:
-
 				void addHandler(const std::string& s, const message_handler& h)
 				{
 					_map[s] = h;
@@ -41,20 +37,19 @@ class OscReceiver
 
 			protected:
 				virtual void ProcessMessage( const osc::ReceivedMessage& m,
-											 const IpEndpointName&  )
+											 const IpEndpointName&  ) override
 				{
 					try
 					{
 						auto addr = std::string(m.AddressPattern());
+
 						if(_map.find(addr) != _map.end())
-						{
 							_map[addr](m.ArgumentStream());
-						}
 					}
 					catch( osc::Exception& e )
 					{
 						std::cerr << "error while parsing message: "
-								  << m.AddressPattern() << ": " << e.what() << "\n";
+								  << m.AddressPattern() << ": " << e.what() << std::endl;
 					}
 				}
 

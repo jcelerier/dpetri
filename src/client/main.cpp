@@ -148,19 +148,12 @@ void petriTest()
 
 void clientTest()
 {
-	OscReceiver r;
+	OscReceiver r(9876);
 	Clock c;
 	ClockClient h(c);
 	auto f = std::bind(&ClockClient::clockMessage, &h, std::placeholders::_1);
 	r.addHandler("/clock", f);
 	r.run();
-}
-
-void serverTest()
-{
-	Clock c(500);
-	ClockServer s(c);
-	c.run();
 }
 
 int main()

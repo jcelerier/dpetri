@@ -8,7 +8,6 @@ class ClockClient
 		ClockClient(Clock& clock):
 			c(clock)
 		{
-
 		}
 
 		void clockMessage(osc::ReceivedMessageArgumentStream args)

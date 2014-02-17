@@ -7,6 +7,7 @@
 #include "clockserver.h"
 #include "clockclient.h"
 #include "oscreceiver.h"
+#include "oscsender.h"
 
 using namespace std;
 
@@ -77,26 +78,18 @@ void test(PetriNet& net, Clock& clock)
 	clock.stop();
 }
 
-void clientTest()
-{
-	OscReceiver r;
-	Clock c;
-	ClockClient h(c);
-	auto f = std::bind(&ClockClient::clockMessage, &h, std::placeholders::_1);
-	r.addHandler("/clock", f);
-	r.run();
-}
 
 void serverTest()
 {
 	Clock c(500);
-	ClockServer s(c);
+	OscSender sender("127.0.0.1", 9876);
+	ClockServer s(c, sender);
 	c.run();
 }
 
 int main()
 {
-	clientTest();
+	serverTest();
 	return 0;
 }
 
