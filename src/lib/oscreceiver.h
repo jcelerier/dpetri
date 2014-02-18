@@ -2,8 +2,10 @@
 
 #include <ip/UdpSocket.h>
 #include <osc/OscPacketListener.h>
+#include <thread>
 #include <functional>
 #include <map>
+#include <iostream>
 
 class OscReceiver
 {
@@ -11,13 +13,14 @@ class OscReceiver
 		using message_handler = std::function<void(osc::ReceivedMessageArgumentStream)>;
 
 		OscReceiver(unsigned int port):
+			_port(port),
 			socket(IpEndpointName(IpEndpointName::ANY_ADDRESS, port), &_impl)
 		{
 		}
 
 		void run()
 		{
-			socket.Run();
+			_runThread = std::thread(&UdpListeningReceiveSocket::Run, &socket);
 		}
 
 		void addHandler(const std::string &s, const	message_handler h)
@@ -25,7 +28,12 @@ class OscReceiver
 			_impl.addHandler(s, h);
 		}
 
+		unsigned int port() const
+		{
+			return _port;
+		}
 	private:
+		unsigned int _port = 0;
 		UdpListeningReceiveSocket socket;
 		class : public osc::OscPacketListener
 		{
@@ -56,4 +64,6 @@ class OscReceiver
 			private:
 				std::map<std::string, message_handler> _map;
 		} _impl{};
+
+		std::thread _runThread;
 };

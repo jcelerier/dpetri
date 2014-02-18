@@ -19,7 +19,7 @@ class ClockServer
 			p.Clear();
 
 			p << osc::BeginBundleImmediate
-			  << osc::BeginMessage( "/clock" ) << (osc::int32) i << osc::EndMessage
+			  << osc::BeginMessage( "/clock/send" ) << (osc::int32) i << osc::EndMessage
 			  << osc::EndBundle;
 
 			_sender.send(p);
