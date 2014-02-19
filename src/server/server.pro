@@ -1,4 +1,4 @@
-QT += widgets network
+QT += widgets network svg
 TEMPLATE = app
 CONFIG +=  c++11 thread
 DESTDIR = ../../output/
@@ -16,7 +16,7 @@ HEADERS += server.h \
     mainwindow.h
 
 
-LIBS += -lpnapi -loscpack -ldns_sd
+LIBS += -lpnapi -loscpack -ldns_sd -lgraph -lgvc -lcdt
 
 unix:!macx: LIBS += -L$$PWD/../../../../../git/oscpack/build/ -loscpack
 

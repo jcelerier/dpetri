@@ -64,8 +64,6 @@ private:
 	BonjourServiceBrowser *bonjourBrowser = nullptr;
 	BonjourServiceResolver *bonjourResolver = nullptr;
 	QTreeWidget *treeWidget = nullptr;
-
-
 };
 
 #endif

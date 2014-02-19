@@ -10,6 +10,7 @@
 #include "server.h"
 #include "mainwindow.h"
 
+#include "petrinetstuff.h"
 void serverTest()
 {
 	Clock c(500);

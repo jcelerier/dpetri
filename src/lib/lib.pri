@@ -9,4 +9,6 @@ HEADERS += \
     $$PWD/zeroconf/bonjourrecord.h \
     $$PWD/zeroconf/bonjourserviceregister.h \
     $$PWD/zeroconf/bonjourservicebrowser.h \
-    $$PWD/zeroconf/bonjourserviceresolver.h
+    $$PWD/zeroconf/bonjourserviceresolver.h \
+    $$PWD/gui/petrinetview.h \
+    $$PWD/gui/petrinetmodel.h

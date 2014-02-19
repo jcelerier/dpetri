@@ -32,6 +32,7 @@ class OscReceiver
 		{
 			return _port;
 		}
+
 	private:
 		unsigned int _port = 0;
 		UdpListeningReceiveSocket socket;
@@ -47,6 +48,7 @@ class OscReceiver
 				virtual void ProcessMessage( const osc::ReceivedMessage& m,
 											 const IpEndpointName&  ) override
 				{
+					std::cerr << "Message received!" << std::endl;
 					try
 					{
 						auto addr = std::string(m.AddressPattern());

@@ -24,8 +24,9 @@ class OscSender: public OscSenderInterface
 		virtual void send(const osc::OutboundPacketStream& m) override
 		{
 			transmitSocket.Send( m.Data(), m.Size() );
+			std::cerr << "Message correctly sent. Size: " << m.Size() << std::endl ;
 		}
 
-	private:
+//	private:
 		UdpTransmitSocket transmitSocket;
 };

@@ -12,3 +12,9 @@ ClientView::~ClientView()
 {
 	delete ui;
 }
+
+
+void ClientView::setPetriNetModel(PetriNetModel& pnm)
+{
+	ui->petriNetView->setModel(pnm);
+}

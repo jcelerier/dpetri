@@ -6,83 +6,78 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>752</width>
-    <height>562</height>
+    <width>733</width>
+    <height>574</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QListView" name="clientNodeList">
-   <property name="geometry">
-    <rect>
-     <x>400</x>
-     <y>330</y>
-     <width>341</width>
-     <height>211</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>400</x>
-     <y>310</y>
-     <width>111</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Client nodes</string>
-   </property>
-  </widget>
-  <widget class="QGraphicsView" name="petriNetView">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>30</y>
-     <width>731</width>
-     <height>261</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>310</y>
-     <width>151</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Clients</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_3">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>111</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Petri Net</string>
-   </property>
-  </widget>
-  <widget class="QListView" name="clientList">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>330</y>
-     <width>381</width>
-     <height>211</height>
-    </rect>
-   </property>
-  </widget>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Petri Net</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="PetriNetView" name="petriNetView" native="true"/>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="0">
+      <widget class="QListWidget" name="clientList">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QListWidget" name="clientNodeList">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Client nodes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Clients</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PetriNetView</class>
+   <extends>QWidget</extends>
+   <header location="global">gui/petrinetview.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

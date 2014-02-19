@@ -2,7 +2,7 @@
 #define MASTERVIEW_H
 
 #include <QWidget>
-
+#include <gui/petrinetmodel.h>
 namespace Ui {
 	class MasterView;
 }
@@ -10,11 +10,13 @@ namespace Ui {
 class MasterView : public QWidget
 {
 		Q_OBJECT
-
 	public:
 		explicit MasterView(QWidget *parent = 0);
 		~MasterView();
+		void setPetriNetModel(PetriNetModel& pnm);
 
+	public slots:
+		void updateConnectionList();
 	private:
 		Ui::MasterView *ui;
 };

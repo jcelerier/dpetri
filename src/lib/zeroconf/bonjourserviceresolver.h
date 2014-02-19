@@ -63,6 +63,18 @@ class BonjourServiceResolver : public QObject
 		void error(DNSServiceErrorType error);
 
 	private slots:
+
+		void cleanupResolve()
+		{
+			if (dnssref)
+			{
+				DNSServiceRefDeallocate(dnssref);
+				dnssref = nullptr;
+				delete bonjourSocket;
+				bonjourSocket = nullptr;
+			}
+		}
+
 		void bonjourSocketReadyRead()
 		{
 			DNSServiceErrorType err = DNSServiceProcessResult(dnssref);

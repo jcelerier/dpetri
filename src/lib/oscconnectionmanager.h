@@ -1,19 +1,28 @@
 #pragma once
 #include <oscsender.h>
-#include <vector>
+#include <map>
 #include <string>
 
 class OSCConnectionManager
 {
+	private:
+		std::map<std::string, OscSender> _senders;
+
 	public:
+
 		OSCConnectionManager() = default;
 
-		OscSender& createConnection(std::string ip,  int port)
+		OscSender& createConnection(std::string hostname, std::string ip,  int port)
 		{
-			_senders.emplace_back(ip, port);
-			return *(_senders.end() - 1);
+			_senders.emplace(std::piecewise_construct,
+							 std::forward_as_tuple(hostname),
+							 std::forward_as_tuple(ip, port));
+			std::cerr << "Hostname: " << hostname << std::endl;
+			return _senders.at(hostname);
 		}
 
-	private:
-		std::vector<OscSender> _senders;
+		const std::map<std::string, OscSender>& getMap() const
+		{
+			return _senders;
+		}
 };

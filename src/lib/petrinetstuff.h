@@ -74,9 +74,9 @@ void test(PetriNet& net, Clock& clock)
 }
 
 
-void petriTest()
+void basicPetriNet()
 {
-	Clock c;
+	//Clock c;
 	PetriNet net;
 
 	auto& i = net.createPlace("init");
@@ -137,8 +137,12 @@ void petriTest()
 	net.createArc(p9, t8);
 
 	net.createArc(t8, f);
-	std::thread t(&Clock::run, &c);
 
-	test(net, c);
-	t.join();
+	std::ofstream outfile("base.pnml");
+	outfile << io::pnml << net;
+
+//	std::thread t(&Clock::run, &c);
+
+//	test(net, c);
+//	t.join();
 }
