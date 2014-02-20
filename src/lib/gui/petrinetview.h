@@ -1,18 +1,9 @@
 #pragma once
 
-#include <iostream>
-#include <sstream>
-#include <algorithm>
-
-#include <graphviz/types.h>
-#include <graphviz/graph.h>
-#include <graphviz/cdt.h>
-#include <graphviz/gvc.h>
-
 #include <QtWidgets/QGridLayout>
 #include <QtSvg/QSvgWidget>
-#include <QDebug>
 #include "petrinetmodel.h"
+#include "../petrinettools.h"
 
 class PetriNetView : public QWidget
 {
@@ -21,6 +12,8 @@ class PetriNetView : public QWidget
 		explicit PetriNetView(QWidget *parent = 0) :
 			QWidget(parent)
 		{
+			mainLayout->addWidget(viewer, 0, 0, 15, 15);
+			setLayout(mainLayout);
 		}
 		void setModel(PetriNetModel& p)
 		{
@@ -32,42 +25,18 @@ class PetriNetView : public QWidget
 	public slots:
 		void updatePetriNet()
 		{
-			//// Create DOT
-			std::stringstream output;
-			output << io::dot << *net;
+			PetriNetSerializer ser(*net);
+			const char * cstr = ser.toSVG();
 
-			// For weird reasons c_str does not work here.
-			auto str = output.str();
-			char * cstr = new char[str.length() + 1];
-			std::copy(str.begin(), str.end(), cstr);
-			cstr[str.length()] = 0;
-
-			//// Create SVG from DOT
-			GVC_t* gvc = gvContext();
-			Agraph_t* G = agmemread(cstr);
-
-			agset(G, (char*) "label", (char*)"");
-			gvLayout (gvc, G, "neato");
-
-			char* renderedData;
-			unsigned int renderedLength;
-			gvRenderData(gvc, G, "svg", &renderedData, &renderedLength);
-			gvFreeLayout(gvc, G);
-
-			agclose (G);
-
-			gvFreeContext(gvc);
-
-			//// Display SVG
-			QByteArray qdata(renderedData, renderedLength);
-			QSvgWidget *viewer = new QSvgWidget();
+			QByteArray qdata(cstr, ser.size());
 			viewer->load(qdata);
-
-			QGridLayout *mainLayout = new QGridLayout;
-			mainLayout->addWidget(viewer, 0, 0, 0, 0);
+			mainLayout->removeWidget(viewer);
+			mainLayout->addWidget(viewer);
 			setLayout(mainLayout);
 		}
 
 	private:
 		PetriNet* net;
+		QSvgWidget *viewer{new QSvgWidget};
+		QGridLayout *mainLayout{new QGridLayout};
 };

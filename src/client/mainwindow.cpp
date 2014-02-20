@@ -5,6 +5,7 @@
 #include <sstream>
 #include <QtNetwork/QNetworkInterface>
 #include <osc/OscOutboundPacketStream.h>
+#include <osctools.h>
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -45,8 +46,13 @@ void MainWindow::openConnectionDialog()
 	connectDialog->exec();
 }
 
-QString getIp()
+QString getIp(QHostAddress serverIP)
 {
+	// Cas local
+	QString local{"127.0.0.1"};
+	if(serverIP == QHostAddress::LocalHost) return local;
+
+	// Cas distant
 	QList<QHostAddress> list = QNetworkInterface::allAddresses();
 
 	for(int nIter=0; nIter<list.count(); nIter++)
@@ -56,29 +62,19 @@ QString getIp()
 				return list[nIter].toString();
 	}
 
-	return "NoIP";
+	return "0.0.0.0";
 }
 
 void MainWindow::newConnection(QHostAddress ip, quint16 port)
 {
 	if(ip.toString() == QString("0.0.0.0"))
-		ip = QHostAddress("127.0.0.1");
+		ip = QHostAddress::LocalHost;
 
 	OscSender& sender = connectMgr.createConnection("server", ip.toString().toStdString(), port);
 
-	std::array<char, 1024> buffer;
-	osc::OutboundPacketStream p(buffer.data(), 1024);
-
-	p.Clear();
-
-	p << osc::BeginBundleImmediate
-		<< osc::BeginMessage( "/connect" )
-			<< QHostInfo::localHostName().toStdString().c_str()
-			<< "127.0.0.1" // getIp().toStdString().c_str()
-			<< (osc::int32) receiver.port()
-		<< osc::EndMessage
-	  << osc::EndBundle;
-
-
-	sender.send(p);
+	osc::MessageGenerator m;
+	sender.send(m("/connect",
+				  QHostInfo::localHostName().toStdString().c_str(),
+				  getIp(ip).toStdString().c_str(),
+				  (osc::int32) receiver.port()));
 }

@@ -89,7 +89,6 @@ void ZeroconfConnectDialog::readConnectionData()
 	quint16 port;
 	QHostAddress ip;
 	in >> ip >> port;
-	qDebug() << ip.toString() << port;
 	emit connectedTo(ip, port);
 }
 

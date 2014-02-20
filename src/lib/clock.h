@@ -48,6 +48,11 @@ class Clock
 			}
 		}
 
+		void start()
+		{
+			_runThread = std::thread(&Clock::run, this);
+		}
+
 		void stop()
 		{
 			_running = false;
@@ -59,4 +64,6 @@ class Clock
 		const std::chrono::milliseconds _step{std::chrono::milliseconds(20)};
 
 		std::vector<handler_type> _handles{};
+
+		std::thread _runThread;
 };

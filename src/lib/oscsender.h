@@ -27,6 +27,6 @@ class OscSender: public OscSenderInterface
 			std::cerr << "Message correctly sent. Size: " << m.Size() << std::endl ;
 		}
 
-//	private:
+	private:
 		UdpTransmitSocket transmitSocket;
 };

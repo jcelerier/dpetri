@@ -11,7 +11,7 @@ class Server : public QObject
 		Server(MainWindow *parent = 0);
 
 	private slots:
-		void sendData();
+		void sendConnectionData();
 
 	private:
 		QTcpServer *tcpServer;

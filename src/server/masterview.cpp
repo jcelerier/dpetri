@@ -8,6 +8,7 @@ MasterView::MasterView(QWidget *parent) :
 	ui(new Ui::MasterView)
 {
 	ui->setupUi(this);
+	connect(ui->pushButton, SIGNAL(clicked()), this, SIGNAL(play()));
 }
 
 MasterView::~MasterView()
@@ -20,10 +21,15 @@ void MasterView::setPetriNetModel(PetriNetModel& pnm)
 	ui->petriNetView->setModel(pnm);
 }
 
+void MasterView::setOscManager(OSCConnectionManager& osc)
+{
+	pOscmgr = &osc;
+}
+
 void MasterView::updateConnectionList()
 {
-	auto map = dynamic_cast<MainWindow*>(parent())->manager.getMap();
+	auto& map = pOscmgr->getMap();
 
-	for(auto i = map.begin(); i != map.end(); ++i)
-		ui->clientList->addItem(QString::fromStdString(i->first));
+	for(auto& e : map)
+		ui->clientList->addItem(QString::fromStdString(e.first));
 }
