@@ -16,8 +16,6 @@ MasterView::~MasterView()
 	delete ui;
 }
 
-
-
 void MasterView::setPetriNetModel(PetriNetModel& pnm)
 {
 	model = &pnm;

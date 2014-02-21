@@ -48,7 +48,7 @@ class OscReceiver
 				virtual void ProcessMessage(const osc::ReceivedMessage& m,
 											const IpEndpointName& name) override
 				{
-					std::cerr << "Message received from: " << name.address << std::endl;
+					std::cerr << "Message " << m.AddressPattern() << " received from: " << name.address << std::endl;
 					try
 					{
 						auto addr = std::string(m.AddressPattern());

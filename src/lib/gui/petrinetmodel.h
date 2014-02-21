@@ -32,11 +32,20 @@ class PetriNetModel : public QObject
 			emit poolChanged();
 		}
 		*/
+
+
 		void handleDump(osc::ReceivedMessageArgumentStream args)
 		{
 			osc::Blob b;
 			args >> b >> osc::EndMessage;
 
+			// Charger dans le pool du client 0
+			/*
+			 * auto it = std::find_if(connectMgr.clients().begin(),
+								   connectMgr.clients().end(),
+								   [] (RemoteClient& cl)
+									{ return cl.id() == 0; });
+			*/
 			pool.load(net, static_cast<const char*>(b.data));
 			emit poolChanged();
 		}

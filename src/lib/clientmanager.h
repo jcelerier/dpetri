@@ -31,7 +31,7 @@ class ClientManager
 			return _clients.back();
 		}
 
-		const std::vector<RemoteClient>& clients() const
+		std::vector<RemoteClient>& clients()
 		{
 			return _clients;
 		}

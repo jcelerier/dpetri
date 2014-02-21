@@ -23,10 +23,14 @@ void ClientView::clientToPool()
 {
 
 }
-
+#include <QDebug>
 void ClientView::poolToClient()
 {
 	auto selectedNodes = ui->poolNodeList->selectedItems();
+	for(QListWidgetItem* item : selectedNodes)
+	{
+		emit take(item->text());
+	}
 
 }
 

@@ -24,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(&pnmodel,		   SIGNAL(poolChanged()),
 			ui->centralwidget, SLOT(updatePool()));
 
+	connect(ui->centralwidget, SIGNAL(take(QString)),
+			this,			   SLOT(takeNode(QString)));
+
 	receiver.addHandler("/petrinet/dump",
 						std::bind(&MainWindow::handlePetriNetReception,
 								  this,

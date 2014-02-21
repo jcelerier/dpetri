@@ -31,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	receiver.addHandler("/connect",
 						std::bind(&MainWindow::handleConnection, this, std::placeholders::_1));
 
+	receiver.addHandler("/pool/take",
+						std::bind(&MainWindow::handleTake, this, std::placeholders::_1));
+
 	receiver.run();
 }
 

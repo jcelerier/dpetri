@@ -19,6 +19,9 @@ class ClientView : public QWidget
 		void setPetriNetModel(PetriNetModel& pnm);
 
 
+	signals:
+		void take(QString);
+
 	public slots:
 		void updatePool();
 	private slots:
