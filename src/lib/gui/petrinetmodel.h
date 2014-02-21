@@ -25,7 +25,7 @@ class PetriNetModel : public QObject
 	public slots:
 		void start()
 		{
-			clock.run();
+			clock.start();
 			algorithmThread = std::thread(&PetriNetModel::simpleExecutionAlgorithm, this);
 		}
 
@@ -35,10 +35,10 @@ class PetriNetModel : public QObject
 			QString file = QFileDialog::getOpenFileName(nullptr,
 														tr("Choose a PNML file"),
 														QString(),
-														tr("PNML File (*.pnml)"));
+														tr("FIONA File (*.fiona)"));
 
 			std::ifstream in (file.toStdString());
-			in >> io::pnml >> net;
+			in >> io::owfn >> net;
 
 			emit changed();
 		}
@@ -46,7 +46,7 @@ class PetriNetModel : public QObject
 		void loadFromString(std::string str)
 		{
 			std::stringstream s(str);
-			s >> io::pnml >> net;
+			s >> io::owfn >> net;
 
 			emit changed();
 		}

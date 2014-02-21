@@ -29,7 +29,14 @@ class PetriNetSerializer
 			spnet << io::pnml << _net;
 
 			return toChar(spnet);
+		}
 
+		const char* toFIONA()
+		{
+			std::stringstream spnet;
+			spnet << io::owfn << _net;
+
+			return toChar(spnet);
 		}
 
 		const char* toDOT()

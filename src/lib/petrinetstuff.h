@@ -76,8 +76,8 @@ void basicPetriNet()
 
 	net.createArc(t8, f);
 
-	std::ofstream outfile("base.pnml");
-	outfile << io::pnml << net;
+	std::ofstream outfile("base.fiona");
+	outfile << io::owfn << net;
 
 //	std::thread t(&Clock::run, &c);
 

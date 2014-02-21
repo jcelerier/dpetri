@@ -52,7 +52,7 @@ void MainWindow::handleConnection(osc::ReceivedMessageArgumentStream args)
 
 	//// Envoi du réseau de petri vers le client
 	PetriNetSerializer ser(pnmodel.net);
-	const char * cstr = ser.toPNML();
+	const char * cstr = ser.toFIONA();
 
 	osc::MessageGenerator m(1024 + ser.size());
 	sender.send(m("/petrinet/dump", osc::Blob(cstr, ser.size())));

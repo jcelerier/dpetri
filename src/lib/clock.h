@@ -50,6 +50,7 @@ class Clock
 
 		void start()
 		{
+			_time.store(0);
 			_runThread = std::thread(&Clock::run, this);
 		}
 

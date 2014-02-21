@@ -13,5 +13,4 @@ HEADERS += \
     $$PWD/gui/petrinetview.h \
     $$PWD/gui/petrinetmodel.h \
     ../lib/osctools.h \
-    ../lib/petrinettools.h \
-    ../lib/graphviztools.h
+    ../lib/petrinettools.h
