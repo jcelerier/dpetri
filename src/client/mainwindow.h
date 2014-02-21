@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include "zeroconfconnectdialog.h"
 #include <gui/petrinetmodel.h>
-#include <oscconnectionmanager.h>
+#include <clientmanager.h>
 #include <oscreceiver.h>
 #include <pnapi/pnapi.h>
 using namespace pnapi;
@@ -22,6 +22,7 @@ class MainWindow : public QMainWindow
 		~MainWindow();
 
 		void handlePetriNetReception(osc::ReceivedMessageArgumentStream args);
+		void handleIdReception(osc::ReceivedMessageArgumentStream args);
 
 	public slots:
 		void openConnectionDialog();
@@ -30,10 +31,14 @@ class MainWindow : public QMainWindow
 	private:
 		Ui::MainWindow *ui;
 		ZeroconfConnectDialog* connectDialog;
-		OSCConnectionManager connectMgr;
+
+
 		OscReceiver receiver{OscReceiver(9877)};
 
 		PetriNetModel pnmodel;
+		ClientManager connectMgr;
+
+		unsigned int localId;
 };
 
 #endif // MAINWINDOW_H

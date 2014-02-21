@@ -62,7 +62,11 @@
       <widget class="QListWidget" name="localNodeList"/>
      </item>
      <item row="1" column="2">
-      <widget class="QListWidget" name="poolNodeList"/>
+      <widget class="QListWidget" name="poolNodeList">
+       <property name="selectionMode">
+        <enum>QAbstractItemView::MultiSelection</enum>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

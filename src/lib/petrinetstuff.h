@@ -7,11 +7,6 @@
 using namespace std;
 using namespace pnapi;
 
-
-
-
-
-
 void basicPetriNet()
 {
 	//Clock c;

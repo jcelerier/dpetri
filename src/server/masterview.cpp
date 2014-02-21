@@ -16,20 +16,23 @@ MasterView::~MasterView()
 	delete ui;
 }
 
+
+
 void MasterView::setPetriNetModel(PetriNetModel& pnm)
 {
+	model = &pnm;
 	ui->petriNetView->setModel(pnm);
 }
 
-void MasterView::setOscManager(OSCConnectionManager& osc)
+void MasterView::setOscManager(ClientManager& osc)
 {
 	pOscmgr = &osc;
 }
 
 void MasterView::updateConnectionList()
 {
-	auto& map = pOscmgr->getMap();
+	auto& clients = pOscmgr->clients();
 
-	for(auto& e : map)
-		ui->clientList->addItem(QString::fromStdString(e.first));
+	for(auto& c : clients)
+		ui->clientList->addItem(QString::fromStdString(c.name()));
 }

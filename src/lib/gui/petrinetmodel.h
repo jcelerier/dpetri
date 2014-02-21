@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "../clock.h"
+#include "../nodepool.h"
 
 
 using namespace pnapi;
@@ -14,15 +15,32 @@ class PetriNetModel : public QObject
 		Q_OBJECT
 	public:
 		PetriNet net;
+		NodePool pool;
 		Clock clock;
 
 		PetriNetModel(QObject * parent):
 			QObject(parent)
 		{
-
+			//connect(this, SIGNAL(netChanged()), this, SLOT(doLocalChanges()));
 		}
 
 	public slots:
+		/*
+		void doLocalChanges()
+		{
+			pool.reload(net);
+			emit poolChanged();
+		}
+		*/
+		void handleDump(osc::ReceivedMessageArgumentStream args)
+		{
+			osc::Blob b;
+			args >> b >> osc::EndMessage;
+
+			pool.load(net, static_cast<const char*>(b.data));
+			emit poolChanged();
+		}
+
 		void start()
 		{
 			clock.start();
@@ -40,7 +58,8 @@ class PetriNetModel : public QObject
 			std::ifstream in (file.toStdString());
 			in >> io::owfn >> net;
 
-			emit changed();
+			emit netChanged();
+			pool.reload(net);
 		}
 
 		void loadFromString(std::string str)
@@ -48,11 +67,12 @@ class PetriNetModel : public QObject
 			std::stringstream s(str);
 			s >> io::owfn >> net;
 
-			emit changed();
+			emit netChanged();
 		}
 
 	signals:
-		void changed();
+		void netChanged();
+		void poolChanged();
 
 	private:
 		std::thread algorithmThread;
@@ -104,7 +124,7 @@ class PetriNetModel : public QObject
 								place.setTokenCount(place.getTokenCount() + 1);
 							}
 
-							emit changed();
+							emit netChanged();
 							//std::ofstream outfile(std::to_string(i++) + ".dot");
 							//outfile << io::dot << net;
 						}

@@ -11,7 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
 	connectDialog(new ZeroconfConnectDialog(this)),
-	pnmodel(this)
+	pnmodel(this),
+	connectMgr(pnmodel.pool)
 {
 	ui->setupUi(this);
 
@@ -20,9 +21,22 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(connectDialog, SIGNAL(connectedTo(QHostAddress,quint16)),
 			this,		   SLOT(newConnection(QHostAddress,quint16)));
 
+	connect(&pnmodel,		   SIGNAL(poolChanged()),
+			ui->centralwidget, SLOT(updatePool()));
+
 	receiver.addHandler("/petrinet/dump",
 						std::bind(&MainWindow::handlePetriNetReception,
 								  this,
+								  std::placeholders::_1));
+
+	receiver.addHandler("/connect/id",
+						std::bind(&MainWindow::handleIdReception,
+								  this,
+								  std::placeholders::_1));
+
+	receiver.addHandler("/pool/dump",
+						std::bind(&PetriNetModel::handleDump,
+								  &pnmodel,
 								  std::placeholders::_1));
 
 	receiver.run();
@@ -39,6 +53,15 @@ void MainWindow::handlePetriNetReception(osc::ReceivedMessageArgumentStream args
 	args >> b >> osc::EndMessage;
 
 	pnmodel.loadFromString(std::string(static_cast<const char*>(b.data)));
+}
+
+void MainWindow::handleIdReception(osc::ReceivedMessageArgumentStream args)
+{
+	osc::int32 id;
+	args >> id >> osc::EndMessage;
+
+	localId = id;
+	qDebug() << "I got id " << id << " !";
 }
 
 void MainWindow::openConnectionDialog()
@@ -70,7 +93,7 @@ void MainWindow::newConnection(QHostAddress ip, quint16 port)
 	if(ip.toString() == QString("0.0.0.0"))
 		ip = QHostAddress::LocalHost;
 
-	OscSender& sender = connectMgr.createConnection("server", ip.toString().toStdString(), port);
+	auto& sender = connectMgr.createConnection("server", ip.toString().toStdString(), port);
 
 	osc::MessageGenerator m;
 	sender.send(m("/connect",

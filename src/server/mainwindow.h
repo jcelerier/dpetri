@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <oscreceiver.h>
-#include <oscconnectionmanager.h>
+#include <clientmanager.h>
 #include "server.h"
 #include <gui/petrinetmodel.h>
 
@@ -33,9 +33,8 @@ class MainWindow : public QMainWindow
 		Server* server;
 		OscReceiver receiver{OscReceiver(9876)};
 
-		OSCConnectionManager manager;
-
 		PetriNetModel pnmodel;
+		ClientManager manager;
 };
 
 #endif // MAINWINDOW_H

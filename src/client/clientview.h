@@ -19,8 +19,15 @@ class ClientView : public QWidget
 		void setPetriNetModel(PetriNetModel& pnm);
 
 
+	public slots:
+		void updatePool();
+	private slots:
+		void clientToPool();
+		void poolToClient();
+
 	private:
 		Ui::ClientView *ui;
+		PetriNetModel* model;
 };
 
 #endif // CLIENTVIEW_H

@@ -15,17 +15,19 @@ class PetriNetView : public QWidget
 			mainLayout->addWidget(viewer, 0, 0, 15, 15);
 			setLayout(mainLayout);
 		}
+
 		void setModel(PetriNetModel& p)
 		{
-			connect(&p, SIGNAL(changed()), this, SLOT(updatePetriNet()));
-			net = &p.net;
+			connect(&p, SIGNAL(netChanged()), this, SLOT(updatePetriNet()));
+			model = &p;
 		}
 	signals:
 
 	public slots:
+
 		void updatePetriNet()
 		{
-			PetriNetSerializer ser(*net);
+			PetriNetSerializer ser(model->net);
 			const char * cstr = ser.toSVG();
 
 			QByteArray qdata(cstr, ser.size());
@@ -36,7 +38,7 @@ class PetriNetView : public QWidget
 		}
 
 	private:
-		PetriNet* net;
+		PetriNetModel* model;
 		QSvgWidget *viewer{new QSvgWidget};
 		QGridLayout *mainLayout{new QGridLayout};
 };

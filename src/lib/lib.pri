@@ -4,7 +4,7 @@ HEADERS += \
     $$PWD/clockserver.h \
     $$PWD/oscreceiver.h \
     $$PWD/oscsender.h \
-    $$PWD/oscconnectionmanager.h \
+    $$PWD/clientmanager.h \
     $$PWD/petrinetstuff.h \
     $$PWD/zeroconf/bonjourrecord.h \
     $$PWD/zeroconf/bonjourserviceregister.h \
@@ -12,5 +12,9 @@ HEADERS += \
     $$PWD/zeroconf/bonjourserviceresolver.h \
     $$PWD/gui/petrinetview.h \
     $$PWD/gui/petrinetmodel.h \
-    ../lib/osctools.h \
-    ../lib/petrinettools.h
+    $$PWD/osctools.h \
+    $$PWD/petrinettools.h \
+    $$PWD/nodepool.h \
+    ../lib/remoteclient.h \
+    ../lib/remotepetrinetmanager.h \
+    ../lib/ownednode.h

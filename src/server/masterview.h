@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <gui/petrinetmodel.h>
-#include <oscconnectionmanager.h>
+#include <clientmanager.h>
 namespace Ui {
 	class MasterView;
 }
@@ -16,16 +16,18 @@ class MasterView : public QWidget
 		explicit MasterView(QWidget *parent = 0);
 		~MasterView();
 		void setPetriNetModel(PetriNetModel& pnm);
-		void setOscManager(OSCConnectionManager& osc);
+		void setOscManager(ClientManager& osc);
 
 	signals:
 		void play();
 	public slots:
 		void updateConnectionList();
+		//void updatePool();
 	private:
+		PetriNetModel* model;
 		Ui::MasterView *ui;
 
-		OSCConnectionManager* pOscmgr;
+		ClientManager* pOscmgr;
 };
 
 #endif // MASTERVIEW_H
