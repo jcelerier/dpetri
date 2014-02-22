@@ -41,7 +41,9 @@ class MainWindow : public QMainWindow
 			if(it != manager.clients().end())
 			{
 				// Vérifier si la node est bien dans le pool
-				it->take(idNode, pnmodel.pool);
+				it->take(idNode, pnmodel.pool, true);
+
+				//TODO update pool client
 			}
 		}
 

@@ -12,11 +12,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui(new Ui::MainWindow),
 	connectDialog(new ZeroconfConnectDialog(this)),
 	pnmodel(this),
-	connectMgr(pnmodel.pool)
+	clientMgr(pnmodel.pool)
 {
 	ui->setupUi(this);
 
 	ui->centralwidget->setPetriNetModel(pnmodel);
+	ui->centralwidget->setParent(this);
 
 	connect(connectDialog, SIGNAL(connectedTo(QHostAddress,quint16)),
 			this,		   SLOT(newConnection(QHostAddress,quint16)));
@@ -26,6 +27,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(ui->centralwidget, SIGNAL(take(QString)),
 			this,			   SLOT(takeNode(QString)));
+
+	connect(this,			   SIGNAL(poolChanged()),
+			ui->centralwidget, SLOT(updatePool()));
+
+
+	connect(this,			   SIGNAL(localPoolChanged()),
+			ui->centralwidget, SLOT(updateLocalPool()));
 
 	receiver.addHandler("/petrinet/dump",
 						std::bind(&MainWindow::handlePetriNetReception,
@@ -38,8 +46,13 @@ MainWindow::MainWindow(QWidget *parent) :
 								  std::placeholders::_1));
 
 	receiver.addHandler("/pool/dump",
-						std::bind(&PetriNetModel::handleDump,
-								  &pnmodel,
+						std::bind(&MainWindow::handleDump,
+								  this,
+								  std::placeholders::_1));
+
+	receiver.addHandler("/pool/ackTake",
+						std::bind(&MainWindow::handleAckTake,
+								  this,
 								  std::placeholders::_1));
 
 	receiver.run();
@@ -65,6 +78,26 @@ void MainWindow::handleIdReception(osc::ReceivedMessageArgumentStream args)
 
 	localId = id;
 	qDebug() << "I got id " << id << " !";
+}
+
+void MainWindow::handleDump(osc::ReceivedMessageArgumentStream args)
+{
+	osc::Blob b;
+	args >> b >> osc::EndMessage;
+
+	// Charger dans le pool du client 0
+
+	auto it = std::find_if(clientMgr.clients().begin(),
+						   clientMgr.clients().end(),
+						   [] (RemoteClient& cl)
+	{ return cl.id() == 0; });
+
+	if(it != clientMgr.clients().end())
+	{
+		it->pool().load(pnmodel.net, static_cast<const char*>(b.data));
+		qDebug() << "Pool Loaded";
+		emit poolChanged();
+	}
 }
 
 void MainWindow::openConnectionDialog()
@@ -96,11 +129,37 @@ void MainWindow::newConnection(QHostAddress ip, quint16 port)
 	if(ip.toString() == QString("0.0.0.0"))
 		ip = QHostAddress::LocalHost;
 
-	auto& sender = connectMgr.createConnection("server", ip.toString().toStdString(), port);
+	auto& sender = clientMgr.createConnection("server", ip.toString().toStdString(), port);
 
 	osc::MessageGenerator m;
 	sender.send(m("/connect",
 				  QHostInfo::localHostName().toStdString().c_str(),
 				  getIp(ip).toStdString().c_str(),
 				  (osc::int32) receiver.port()));
+}
+
+void MainWindow::takeNode(QString s)
+{
+	// Faire un take vers le pool du client d'id 0 (le serveur)
+	auto it = std::find_if(clientMgr.clients().begin(),
+						   clientMgr.clients().end(),
+						   [] (RemoteClient& cl)
+	{ return cl.id() == 0; });
+
+	if(it != clientMgr.clients().end())
+	{
+		auto node = std::find_if(it->pool().nodes.begin(),
+								 it->pool().nodes.end(),
+								 [&s] (OwnedNode& n)
+		{ return n.node->getName() == s.toStdString(); });
+
+		if(node != it->pool().nodes.end())
+		{
+			osc::MessageGenerator m;
+			it->send(m("/pool/take", (osc::int32) localId, (osc::int32) node->id));
+		}
+	}
+	// Il envoie la demande
+
+	// A la réception de ack on applique
 }
