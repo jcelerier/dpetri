@@ -18,7 +18,7 @@ HEADERS += \
     oscconnectionmanager.h
 
 
-LIBS += -lpnapi -loscpack -ldns_sd -lgraph -lgvc -lcdt
+LIBS += -lpnapi -loscpack -ldns_sd -lgvc -lgraph
 
 unix:!macx: LIBS += -L$$PWD/../../../../../git/oscpack/build/ -loscpack
 

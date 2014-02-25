@@ -46,37 +46,39 @@ class RemoteClient
 			auto it = std::find_if(fromPool.nodes.begin(),
 								   fromPool.nodes.end(),
 								   [nodeId] (OwnedNode& n)
-										{ return n.id == nodeId; });
+			{ return n.id == nodeId; });
 
-			if(it != fromPool.nodes.end())
-			{
-				_localPool.nodes.splice(_localPool.nodes.end(), fromPool.nodes, it);
+			if(it == fromPool.nodes.end()) return;
 
-				if(isServer)
-				{
-					osc::MessageGenerator m;
-					send(m("/pool/ackTake", 0, (osc::int32) nodeId)); // Cas serveur
-				}
-				//TODO autres cas
+			_localPool.nodes.splice(_localPool.nodes.end(), fromPool.nodes, it);
 
-				//TODO Envoyer un message d'update de pool à tout le monde ?
-			}
+			if(isServer)
+				send(osc::MessageGenerator()
+					 ("/pool/ackTake", 0, (osc::int32) nodeId)); // Cas serveur
+
+			//TODO autres cas
+
+			//TODO Envoyer un message d'update de pool à tout le monde ?
 		}
 
-		void give(unsigned int nodeId, NodePool& pool)
+		void give(unsigned int nodeId, NodePool& toPool, bool isServer)
 		{
 			// Si node est dans pool local:
-			auto it = std::find_if(_localPool.nodes.begin(), _localPool.nodes.end(),
-						 [nodeId] (OwnedNode& n) { return n.id == nodeId; });
+			auto it = std::find_if(_localPool.nodes.begin(),
+								   _localPool.nodes.end(),
+								   [nodeId] (OwnedNode& n)
+			{ return n.id == nodeId; });
 
-			if(it != _localPool.nodes.end())
-			{
-				_localPool.nodes.splice(it, pool.nodes);
-				osc::MessageGenerator m;
-				send(m("/pool/ackTake", (osc::int32) nodeId));
+			if(it == _localPool.nodes.end()) return;
 
-				//TODO Envoyer un message d'update de pool à tout le monde ?
-			}
+			toPool.nodes.splice(toPool.nodes.end(), _localPool.nodes, it);
+
+			if(isServer)
+				send(osc::MessageGenerator()
+					 ("/pool/ackGive", 0, (osc::int32) nodeId));
+
+			//TODO Envoyer un message d'update de pool à tout le monde ?
+
 		}
 
 		NodePool& pool()

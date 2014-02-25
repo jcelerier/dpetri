@@ -24,37 +24,8 @@ class MainWindow : public QMainWindow
 
 		void handlePetriNetReception(osc::ReceivedMessageArgumentStream args);
 		void handleIdReception(osc::ReceivedMessageArgumentStream args);
-
-		void handleAckTake(osc::ReceivedMessageArgumentStream args)
-		{
-			osc::int32 id;
-			osc::int32 nodeId;
-
-			args >> id >> nodeId >> osc::EndMessage;
-
-			qDebug() << id << nodeId;
-
-			// On doit faire passer node de pool du serveur vers pool local
-			// Obtenir it vers pool du serveur :
-			auto it = std::find_if(clientMgr.clients().begin(),
-								   clientMgr.clients().end(),
-								   [] (RemoteClient& cl)
-			{ return cl.id() == 0; });
-
-			if(it != clientMgr.clients().end())
-			{
-				// Trouver la node d'id nodeId
-				auto nit = std::find_if(it->pool().nodes.begin(),
-										it->pool().nodes.end(),
-										[&nodeId] (OwnedNode& n)
-				 { return n.id == nodeId; });
-				pnmodel.pool.nodes.splice(pnmodel.pool.nodes.begin(), it->pool().nodes, nit);
-
-				emit poolChanged();
-				emit localPoolChanged();
-			}
-		}
-
+		void handleAckTake(osc::ReceivedMessageArgumentStream args);
+		void handleAckGive(osc::ReceivedMessageArgumentStream args);
 		void handleDump(osc::ReceivedMessageArgumentStream args);
 
 	signals:
@@ -68,6 +39,7 @@ class MainWindow : public QMainWindow
 
 		void takeNode(QString s);
 
+		void giveNode(QString s);
 	private:
 		Ui::MainWindow *ui;
 		ZeroconfConnectDialog* connectDialog;

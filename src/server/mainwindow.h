@@ -23,32 +23,14 @@ class MainWindow : public QMainWindow
 		~MainWindow();
 
 	public slots:
-		void handleConnection(osc::ReceivedMessageArgumentStream);
-
-		void handleTake(osc::ReceivedMessageArgumentStream m)
-		{
-			osc::int32 idRemote;
-			osc::int32 idNode;
-
-			m >> idRemote >> idNode >> osc::EndMessage;
-			qDebug() << idRemote << idNode;
-
-			auto it = std::find_if(manager.clients().begin(),
-								   manager.clients().end(),
-								   [idRemote] (RemoteClient& c )
-										{ return c.id() == idRemote; });
-
-			if(it != manager.clients().end())
-			{
-				// Vérifier si la node est bien dans le pool
-				it->take(idNode, pnmodel.pool, true);
-
-				//TODO update pool client
-			}
-		}
+		void handleConnection(osc::ReceivedMessageArgumentStream m);
+		void handleTake(osc::ReceivedMessageArgumentStream m);
+		void handleGive(osc::ReceivedMessageArgumentStream m);
 
 	signals:
 		void connectionListChanged();
+		void localPoolChanged();
+		void clientPoolChanged(int id);
 
 	private:
 		Ui::MainWindow *ui;

@@ -4,6 +4,7 @@
 #include <mainwindow.h>
 
 #include <QDebug>
+
 ClientView::ClientView(QWidget* parent) :
 	QWidget(parent),
 	ui(new Ui::ClientView)
@@ -45,8 +46,13 @@ void ClientView::updateLocalPool()
 
 void ClientView::clientToPool()
 {
-
+	auto selectedNodes = ui->localNodeList->selectedItems();
+	for(QListWidgetItem* item : selectedNodes)
+	{
+		emit give(item->text());
+	}
 }
+
 void ClientView::poolToClient()
 {
 	auto selectedNodes = ui->poolNodeList->selectedItems();
@@ -54,7 +60,6 @@ void ClientView::poolToClient()
 	{
 		emit take(item->text());
 	}
-
 }
 
 ClientView::~ClientView()

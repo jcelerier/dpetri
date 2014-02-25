@@ -4,9 +4,6 @@
 #include <sstream>
 #include <functional>
 
-#include <graphviz/types.h>
-#include <graphviz/graph.h>
-#include <graphviz/cdt.h>
 #include <graphviz/gvc.h>
 
 using namespace pnapi;
@@ -56,7 +53,7 @@ class PetriNetSerializer
 			delete[] serializedData;
 
 			agset(G, (char*) "label", (char*)"");
-			gvLayout (gvc, G, "neato");
+			gvLayout (gvc, G, "dot");
 
 			gvRenderData(gvc, G, "svg", &serializedData, &_size);
 			gvFreeLayout(gvc, G);

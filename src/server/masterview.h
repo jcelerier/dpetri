@@ -2,6 +2,7 @@
 #define MASTERVIEW_H
 
 #include <QWidget>
+#include <QListWidgetItem>
 #include <gui/petrinetmodel.h>
 #include <clientmanager.h>
 namespace Ui {
@@ -22,7 +23,9 @@ class MasterView : public QWidget
 		void play();
 	public slots:
 		void updateConnectionList();
-		//void updatePool();
+		void updateClientPool(int id);
+		void updateLocalPool();
+		void onClientSelection(QListWidgetItem*);
 	private:
 		PetriNetModel* model;
 		Ui::MasterView *ui;

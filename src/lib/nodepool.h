@@ -34,7 +34,6 @@ class NodePool
 
 		void load(PetriNet& net, const char* str)
 		{
-			std::cerr << "Let's load!" << std::endl;
 			std::istringstream s(str);
 			std::string line;
 			while(std::getline(s, line))

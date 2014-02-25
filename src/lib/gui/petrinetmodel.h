@@ -46,7 +46,7 @@ class PetriNetModel : public QObject
 		void loadFile()
 		{
 			QString file = QFileDialog::getOpenFileName(nullptr,
-														tr("Choose a PNML file"),
+														tr("Choose a Petri Net"),
 														QString(),
 														tr("FIONA File (*.fiona)"));
 
@@ -55,6 +55,7 @@ class PetriNetModel : public QObject
 
 			emit netChanged();
 			pool.reload(net);
+			emit poolChanged();
 		}
 
 		void loadFromString(std::string str)

@@ -21,6 +21,7 @@ class ClientView : public QWidget
 
 	signals:
 		void take(QString);
+		void give(QString);
 
 	public slots:
 		void updatePool();

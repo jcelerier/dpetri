@@ -22,8 +22,17 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionLoad_a_Petri_Net, SIGNAL(triggered()),
 			&pnmodel,					SLOT(loadFile()));
 
+	connect(&pnmodel,		   SIGNAL(poolChanged()),
+			ui->centralwidget, SLOT(updateLocalPool()));
+
 	connect(this,			   SIGNAL(connectionListChanged()),
 			ui->centralwidget, SLOT(updateConnectionList()));
+
+	connect(this,			   SIGNAL(localPoolChanged()),
+			ui->centralwidget, SLOT(updateLocalPool()));
+
+	connect(this,			   SIGNAL(clientPoolChanged(int)),
+			ui->centralwidget, SLOT(updateClientPool(int)));
 
 	connect(ui->centralwidget, SIGNAL(play()),
 			&pnmodel,		   SLOT(start()));
@@ -33,6 +42,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	receiver.addHandler("/pool/take",
 						std::bind(&MainWindow::handleTake, this, std::placeholders::_1));
+
+	receiver.addHandler("/pool/give",
+						std::bind(&MainWindow::handleGive, this, std::placeholders::_1));
 
 	receiver.run();
 }
@@ -68,5 +80,52 @@ void MainWindow::handleConnection(osc::ReceivedMessageArgumentStream args)
 
 	auto str2 = pnmodel.pool.dump();
 	sender.send(m("/pool/dump", osc::Blob(str2.c_str(), str2.size())));
+}
+
+void MainWindow::handleTake(osc::ReceivedMessageArgumentStream m)
+{
+	osc::int32 idRemote;
+	osc::int32 idNode;
+
+	m >> idRemote >> idNode >> osc::EndMessage;
+
+	auto it = std::find_if(manager.clients().begin(),
+						   manager.clients().end(),
+						   [idRemote] (RemoteClient& c )
+	{ return c.id() == idRemote; });
+
+	if(it == manager.clients().end()) return;
+
+	// Vérifier si la node est bien dans le pool
+	it->take(idNode, pnmodel.pool, true);
+
+	emit localPoolChanged();
+	emit clientPoolChanged(it->id());
+
+	//TODO update pool client
+
+}
+
+void MainWindow::handleGive(osc::ReceivedMessageArgumentStream m)
+{
+	osc::int32 idRemote;
+	osc::int32 idNode;
+
+	m >> idRemote >> idNode >> osc::EndMessage;
+
+	auto it = std::find_if(manager.clients().begin(),
+						   manager.clients().end(),
+						   [idRemote] (RemoteClient& c )
+	{ return c.id() == idRemote; });
+
+	if(it == manager.clients().end()) return;
+
+	// Vérifier si la node est bien dans le pool
+	it->give(idNode, pnmodel.pool, true);
+
+	emit localPoolChanged();
+	emit clientPoolChanged(it->id());
+
+	//TODO update pool client
 }
 

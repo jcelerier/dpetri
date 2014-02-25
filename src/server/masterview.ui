@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>733</width>
+    <width>800</width>
     <height>574</height>
    </rect>
   </property>
@@ -31,17 +31,28 @@
     <widget class="PetriNetView" name="petriNetView" native="true"/>
    </item>
    <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="2" column="0">
-      <widget class="QListWidget" name="clientList">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="topMargin">
+      <number>9</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="text">
+        <string>Stop</string>
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>Play</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
      <item row="2" column="1">
       <widget class="QListWidget" name="clientNodeList">
        <property name="sizePolicy">
@@ -66,17 +77,23 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="pushButton">
-       <property name="text">
-        <string>Play</string>
+     <item row="2" column="0">
+      <widget class="QListWidget" name="clientList">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="pushButton_2">
+     <item row="2" column="2">
+      <widget class="QListWidget" name="localNodeList"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Stop</string>
+        <string>Pool nodes</string>
        </property>
       </widget>
      </item>
@@ -93,8 +110,26 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>clientList</sender>
+   <signal>itemChanged(QListWidgetItem*)</signal>
+   <receiver>MasterView</receiver>
+   <slot>onClientSelection(QListWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>62</x>
+     <y>175</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>82</x>
+     <y>7</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <slots>
   <signal>play()</signal>
+  <slot>onClientSelection(QListWidgetItem*)</slot>
  </slots>
 </ui>
