@@ -27,7 +27,7 @@ class PetriNetView : public QWidget
 
 		void updatePetriNet()
 		{
-			PetriNetSerializer ser(model->net);
+			PetriNetSerializer ser(model->net());
 			const char * cstr = ser.toSVG();
 
 			QByteArray qdata(cstr, ser.size());

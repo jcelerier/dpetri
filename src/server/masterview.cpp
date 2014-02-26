@@ -49,7 +49,7 @@ void MasterView::updateClientPool(int id)
 	if(client.name() != text) return;
 
 	ui->clientNodeList->clear();
-	for(OwnedNode& e : client.pool().nodes)
+	for(OwnedNode& e : client.pool())
 	{
 		ui->clientNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}
@@ -58,7 +58,7 @@ void MasterView::updateClientPool(int id)
 void MasterView::updateLocalPool()
 {
 	ui->localNodeList->clear();
-	for(OwnedNode& e : model->pool.nodes)
+	for(OwnedNode& e : model->pool())
 	{
 		ui->localNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}
@@ -70,7 +70,7 @@ void MasterView::onClientSelection(QListWidgetItem* selected)
 	auto& client = (*pOscmgr)[text];
 
 	ui->clientNodeList->clear();
-	for(OwnedNode& e : client.pool().nodes)
+	for(OwnedNode& e : client.pool())
 	{
 		ui->clientNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}

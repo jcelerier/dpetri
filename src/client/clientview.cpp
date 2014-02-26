@@ -22,7 +22,7 @@ void ClientView::updatePool()
 	auto& server = myParent->clientMgr[0];
 
 	ui->poolNodeList->clear();
-	for(OwnedNode& e : server.pool().nodes)
+	for(OwnedNode& e : server.pool())
 	{
 		ui->poolNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}
@@ -32,7 +32,7 @@ void ClientView::updatePool()
 void ClientView::updateLocalPool()
 {
 	ui->localNodeList->clear();
-	for(OwnedNode& e : model->pool.nodes)
+	for(const OwnedNode& e : model->pool())
 	{
 		ui->localNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}

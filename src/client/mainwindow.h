@@ -18,6 +18,7 @@ class MainWindow : public QMainWindow
 {
 		Q_OBJECT
 		friend class ClientView;
+
 	public:
 		explicit MainWindow(QWidget *parent = 0);
 		~MainWindow();
@@ -36,14 +37,12 @@ class MainWindow : public QMainWindow
 		void openConnectionDialog();
 		void newConnection(QHostAddress ip, quint16 port);
 
-
 		void takeNode(QString s);
-
 		void giveNode(QString s);
+
 	private:
 		Ui::MainWindow *ui;
 		ZeroconfConnectDialog* connectDialog;
-
 
 		OscReceiver receiver{9877};
 

@@ -17,7 +17,7 @@ class PetriNetSerializer
 
 		~PetriNetSerializer()
 		{
-			if(serializedData) delete[] serializedData;
+			delete[] serializedData;
 		}
 
 		const char* toPNML()
@@ -65,7 +65,7 @@ class PetriNetSerializer
 			return serializedData;
 		}
 
-		unsigned int size()
+		unsigned int size() const
 		{
 			return _size;
 		}
@@ -75,7 +75,7 @@ class PetriNetSerializer
 		{
 			std::string strpnet = spnet.str();
 
-			if(serializedData) delete[] serializedData;
+			delete[] serializedData;
 			serializedData = new char[strpnet.size() + 1];
 			_size = strpnet.size() + 1;
 

@@ -21,15 +21,16 @@ class MasterView : public QWidget
 
 	signals:
 		void play();
+
 	public slots:
 		void updateConnectionList();
 		void updateClientPool(int id);
 		void updateLocalPool();
 		void onClientSelection(QListWidgetItem*);
+
 	private:
 		PetriNetModel* model;
 		Ui::MasterView *ui;
-
 		ClientManager* pOscmgr;
 };
 

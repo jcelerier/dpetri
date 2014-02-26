@@ -22,7 +22,7 @@ class MainWindow : public QMainWindow
 		explicit MainWindow(QWidget *parent = 0);
 		~MainWindow();
 
-	public slots:
+		// OscPack handlers
 		void handleConnection(osc::ReceivedMessageArgumentStream m);
 		void handleTake(osc::ReceivedMessageArgumentStream m);
 		void handleGive(osc::ReceivedMessageArgumentStream m);

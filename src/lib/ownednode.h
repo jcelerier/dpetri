@@ -8,7 +8,6 @@ struct OwnedNode
 			node(n),
 			id(i)
 		{
-
 		}
 
 	Node* node{nullptr};

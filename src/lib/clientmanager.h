@@ -7,16 +7,11 @@
 class ClientManager
 {
 	private:
-		NodePool& _pool;
 		std::vector<RemoteClient> _clients;
 		unsigned int _lastId = 0;
 
 	public:
-		ClientManager(NodePool& pool):
-			_pool(pool)
-		{
-		}
-
+		ClientManager() = default;
 		ClientManager(const ClientManager& c) = delete;
 		ClientManager& operator=(const ClientManager& c) = delete;
 
@@ -49,7 +44,7 @@ class ClientManager
 		}
 
 		// Returns client by id
-		RemoteClient& operator[](unsigned int i)
+		RemoteClient& operator[](int i)
 		{
 			auto it = std::find_if(_clients.begin(),
 								   _clients.end(),
@@ -72,6 +67,4 @@ class ClientManager
 
 			return *it;
 		}
-
-		// Handlers pour take et giveback
 };

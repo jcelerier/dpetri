@@ -12,8 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
 	server(new Server(this)),
-	pnmodel(this),
-	manager(pnmodel.pool)
+	pnmodel(this)
 {
 	ui->setupUi(this);
 	ui->centralwidget->setPetriNetModel(pnmodel);
@@ -70,7 +69,7 @@ void MainWindow::handleConnection(osc::ReceivedMessageArgumentStream args)
 	emit connectionListChanged();
 
 	//// Envoi du réseau de petri vers le client
-	PetriNetSerializer ser(pnmodel.net);
+	PetriNetSerializer ser(pnmodel.net());
 	const char * cstr = ser.toFIONA();
 
 	osc::MessageGenerator m(1024 + ser.size());
@@ -78,7 +77,7 @@ void MainWindow::handleConnection(osc::ReceivedMessageArgumentStream args)
 
 	//// Envoi du pool vers le client
 
-	auto str2 = pnmodel.pool.dump();
+	auto str2 = pnmodel.pool().dump();
 	sender.send(m("/pool/dump", osc::Blob(str2.c_str(), str2.size())));
 }
 
@@ -92,7 +91,7 @@ void MainWindow::handleTake(osc::ReceivedMessageArgumentStream m)
 	auto& client = manager[idRemote];
 
 	// Vérifier si la node est bien dans le pool
-	client.take(idNode, pnmodel.pool);
+	client.take(idNode, pnmodel.pool());
 	client.send(osc::MessageGenerator()
 		 ("/pool/ackTake", 0, (osc::int32) idNode)); // Cas serveur
 
@@ -102,7 +101,7 @@ void MainWindow::handleTake(osc::ReceivedMessageArgumentStream m)
 		if(c.id() != idRemote)
 		{
 			qDebug() << "Sending to: " << c.id() << c.name().c_str();
-			auto str2 = pnmodel.pool.dump();
+			auto str2 = pnmodel.pool().dump();
 			c.send(osc::MessageGenerator(1024 + str2.size())
 						("/pool/dump", osc::Blob(str2.c_str(), str2.size())));
 		}
@@ -122,7 +121,7 @@ void MainWindow::handleGive(osc::ReceivedMessageArgumentStream m)
 	auto& client = manager[idRemote];
 
 	// Vérifier si la node est bien dans le pool
-	client.give(idNode, pnmodel.pool);
+	client.give(idNode, pnmodel.pool());
 	client.send(osc::MessageGenerator()
 		 ("/pool/ackGive", 0, (osc::int32) idNode));
 
@@ -131,7 +130,7 @@ void MainWindow::handleGive(osc::ReceivedMessageArgumentStream m)
 	{
 		if(c.id() != idRemote)
 		{
-			auto str2 = pnmodel.pool.dump();
+			auto str2 = pnmodel.pool().dump();
 			c.send(osc::MessageGenerator(1024 + str2.size())
 						("/pool/dump", osc::Blob(str2.c_str(), str2.size())));
 		}

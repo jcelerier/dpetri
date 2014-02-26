@@ -11,8 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
 	connectDialog(new ZeroconfConnectDialog(this)),
-	pnmodel(this),
-	clientMgr(pnmodel.pool)
+	pnmodel(this)
 {
 	ui->setupUi(this);
 
@@ -95,7 +94,7 @@ void MainWindow::handleAckTake(osc::ReceivedMessageArgumentStream args)
 	args >> id >> nodeId >> osc::EndMessage;
 
 	auto& origin = clientMgr[id];
-	origin.give(nodeId, pnmodel.pool);
+	origin.give(nodeId, pnmodel.pool());
 
 	emit poolChanged();
 	emit localPoolChanged();
@@ -110,7 +109,7 @@ void MainWindow::handleAckGive(osc::ReceivedMessageArgumentStream args)
 	args >> id >> nodeId >> osc::EndMessage;
 
 	auto& origin = clientMgr[id];
-	origin.take(nodeId, pnmodel.pool);
+	origin.take(nodeId, pnmodel.pool());
 
 	emit poolChanged();
 	emit localPoolChanged();
@@ -125,7 +124,7 @@ void MainWindow::handleDump(osc::ReceivedMessageArgumentStream args)
 	// Charger dans le pool du client 0
 	auto& server = clientMgr[0];
 
-	server.pool().load(pnmodel.net, static_cast<const char*>(b.data));
+	server.pool().load(pnmodel.net(), static_cast<const char*>(b.data));
 	emit poolChanged();
 
 }
@@ -138,8 +137,7 @@ void MainWindow::openConnectionDialog()
 QString getIp(QHostAddress serverIP)
 {
 	// Cas local
-	QString local{"127.0.0.1"};
-	if(serverIP == QHostAddress::LocalHost) return local;
+	if(serverIP == QHostAddress::LocalHost) return "127.0.0.1";
 
 	// Cas distant
 	QList<QHostAddress> list = QNetworkInterface::allAddresses();
@@ -182,7 +180,7 @@ void MainWindow::giveNode(QString s)
 {
 	// Faire un give vers le pool du client d'id 0 (le serveur)
 	auto& server = clientMgr[0];
-	auto& node = pnmodel.pool[s.toStdString()];
+	auto& node = pnmodel.pool()[s.toStdString()];
 
 	server.send(osc::MessageGenerator()
 				("/pool/give", (osc::int32) localId, (osc::int32) node.id));

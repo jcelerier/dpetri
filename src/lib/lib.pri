@@ -17,4 +17,5 @@ HEADERS += \
     $$PWD/nodepool.h \
     ../lib/remoteclient.h \
     ../lib/remotepetrinetmanager.h \
-    ../lib/ownednode.h
+    ../lib/ownednode.h \
+    ../lib/gui/executionalgorithmbase.h
