@@ -34,6 +34,7 @@ class NodePool
 
 		void load(PetriNet& net, const char* str)
 		{
+			nodes.clear();
 			std::istringstream s(str);
 			std::string line;
 			while(std::getline(s, line))
@@ -48,7 +49,6 @@ class NodePool
 				nodes.emplace_back(net.findNode(name), id);
 			}
 		}
-
 
 		OwnedNode& operator[](std::string s)
 		{

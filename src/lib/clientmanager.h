@@ -15,13 +15,25 @@ class ClientManager
 		ClientManager(NodePool& pool):
 			_pool(pool)
 		{
-
 		}
 
-		RemoteClient& createConnection(const std::string& hostname,
+		ClientManager(const ClientManager& c) = delete;
+		ClientManager& operator=(const ClientManager& c) = delete;
+
+		RemoteClient& createConnection(std::string hostname,
 									   const std::string& ip,
 									   const int port)
 		{
+			std::cerr << "Création d'un nouveau client" << std::endl;
+			// Chercher si un client a déjà le même nom
+			while(std::any_of(_clients.begin(),
+							  _clients.end(),
+							  [&hostname] (RemoteClient& c)
+				{ return hostname == c.name();}))
+			{
+				hostname.append("X");
+			}
+
 			// Les ID partent de 1 (server = 0)
 			_clients.emplace_back((hostname == "server")? 0 : ++_lastId,
 								  hostname,
@@ -62,6 +74,4 @@ class ClientManager
 		}
 
 		// Handlers pour take et giveback
-
-
 };

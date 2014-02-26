@@ -95,7 +95,7 @@ void MainWindow::handleAckTake(osc::ReceivedMessageArgumentStream args)
 	args >> id >> nodeId >> osc::EndMessage;
 
 	auto& origin = clientMgr[id];
-	origin.give(nodeId, pnmodel.pool, false);
+	origin.give(nodeId, pnmodel.pool);
 
 	emit poolChanged();
 	emit localPoolChanged();
@@ -110,7 +110,7 @@ void MainWindow::handleAckGive(osc::ReceivedMessageArgumentStream args)
 	args >> id >> nodeId >> osc::EndMessage;
 
 	auto& origin = clientMgr[id];
-	origin.take(nodeId, pnmodel.pool, false);
+	origin.take(nodeId, pnmodel.pool);
 
 	emit poolChanged();
 	emit localPoolChanged();

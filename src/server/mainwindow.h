@@ -35,7 +35,7 @@ class MainWindow : public QMainWindow
 	private:
 		Ui::MainWindow *ui;
 		Server* server;
-		OscReceiver receiver{OscReceiver(9876)};
+		OscReceiver receiver{7000};
 
 		PetriNetModel pnmodel;
 		ClientManager manager;

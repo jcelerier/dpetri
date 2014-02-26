@@ -45,7 +45,7 @@ class MainWindow : public QMainWindow
 		ZeroconfConnectDialog* connectDialog;
 
 
-		OscReceiver receiver{OscReceiver(9877)};
+		OscReceiver receiver{9877};
 
 		PetriNetModel pnmodel;
 		ClientManager clientMgr;

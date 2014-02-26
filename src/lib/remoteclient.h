@@ -19,9 +19,16 @@ class RemoteClient
 			_name(hostname),
 			_sender(ip, port)
 		{
-			osc::MessageGenerator m;
-			send(m("/connect/id", _id));
+			// Cas serveur
+			if(id != 0)
+				send(osc::MessageGenerator()("/connect/id", _id));
 		}
+
+		RemoteClient(RemoteClient&& c) = default;
+		RemoteClient(const RemoteClient& c) = delete;
+		RemoteClient& operator=(const RemoteClient& c) = delete;
+
+
 
 		unsigned int id() const
 		{
@@ -39,46 +46,14 @@ class RemoteClient
 		}
 
 		// A appeler si on reçoit un message osc d'un autre client : /pool/take...
-		void take(unsigned int nodeId, NodePool& fromPool, bool isServer)
+		void take(unsigned int nodeId, NodePool& fromPool)
 		{
-			// Si node est dans pool global:
-			// enlever du pool global et mettre dans pool client.
-			auto it = std::find_if(fromPool.nodes.begin(),
-								   fromPool.nodes.end(),
-								   [nodeId] (OwnedNode& n)
-			{ return n.id == nodeId; });
-
-			if(it == fromPool.nodes.end()) return;
-
-			_localPool.nodes.splice(_localPool.nodes.end(), fromPool.nodes, it);
-
-			if(isServer)
-				send(osc::MessageGenerator()
-					 ("/pool/ackTake", 0, (osc::int32) nodeId)); // Cas serveur
-
-			//TODO autres cas
-
-			//TODO Envoyer un message d'update de pool à tout le monde ?
+			exchange(nodeId, fromPool, _localPool);
 		}
 
-		void give(unsigned int nodeId, NodePool& toPool, bool isServer)
+		void give(unsigned int nodeId, NodePool& toPool)
 		{
-			// Si node est dans pool local:
-			auto it = std::find_if(_localPool.nodes.begin(),
-								   _localPool.nodes.end(),
-								   [nodeId] (OwnedNode& n)
-			{ return n.id == nodeId; });
-
-			if(it == _localPool.nodes.end()) return;
-
-			toPool.nodes.splice(toPool.nodes.end(), _localPool.nodes, it);
-
-			if(isServer)
-				send(osc::MessageGenerator()
-					 ("/pool/ackGive", 0, (osc::int32) nodeId));
-
-			//TODO Envoyer un message d'update de pool à tout le monde ?
-
+			exchange(nodeId, _localPool, toPool);
 		}
 
 		NodePool& pool()
@@ -87,6 +62,19 @@ class RemoteClient
 		}
 
 	private:
+		void exchange(unsigned int nodeId, NodePool& from, NodePool& to)
+		{
+			// Si node est dans pool local:
+			auto it = std::find_if(from.nodes.begin(),
+								   from.nodes.end(),
+								   [nodeId] (OwnedNode& n)
+			{ return n.id == nodeId; });
+
+			if(it == from.nodes.end()) throw;
+
+			to.nodes.splice(to.nodes.end(), from.nodes, it);
+		}
+
 		int _id;
 		std::string _name;
 		OscSender _sender;

@@ -33,6 +33,7 @@ void MasterView::updateConnectionList()
 {
 	auto& clients = pOscmgr->clients();
 
+	ui->clientList->clear();
 	for(auto& c : clients)
 		ui->clientList->addItem(QString::fromStdString(c.name()));
 }

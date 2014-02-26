@@ -92,12 +92,24 @@ void MainWindow::handleTake(osc::ReceivedMessageArgumentStream m)
 	auto& client = manager[idRemote];
 
 	// Vérifier si la node est bien dans le pool
-	client.take(idNode, pnmodel.pool, true);
+	client.take(idNode, pnmodel.pool);
+	client.send(osc::MessageGenerator()
+		 ("/pool/ackTake", 0, (osc::int32) idNode)); // Cas serveur
+
+	//Mise-à-jour des pools des autres clients
+	for(RemoteClient& c : manager.clients())
+	{
+		if(c.id() != idRemote)
+		{
+			qDebug() << "Sending to: " << c.id() << c.name().c_str();
+			auto str2 = pnmodel.pool.dump();
+			c.send(osc::MessageGenerator(1024 + str2.size())
+						("/pool/dump", osc::Blob(str2.c_str(), str2.size())));
+		}
+	}
 
 	emit localPoolChanged();
 	emit clientPoolChanged(client.id());
-
-	//TODO update pool client
 }
 
 void MainWindow::handleGive(osc::ReceivedMessageArgumentStream m)
@@ -110,11 +122,22 @@ void MainWindow::handleGive(osc::ReceivedMessageArgumentStream m)
 	auto& client = manager[idRemote];
 
 	// Vérifier si la node est bien dans le pool
-	client.give(idNode, pnmodel.pool, true);
+	client.give(idNode, pnmodel.pool);
+	client.send(osc::MessageGenerator()
+		 ("/pool/ackGive", 0, (osc::int32) idNode));
+
+	//Mise-à-jour des pools des autres clients
+	for(RemoteClient& c : manager.clients())
+	{
+		if(c.id() != idRemote)
+		{
+			auto str2 = pnmodel.pool.dump();
+			c.send(osc::MessageGenerator(1024 + str2.size())
+						("/pool/dump", osc::Blob(str2.c_str(), str2.size())));
+		}
+	}
 
 	emit localPoolChanged();
 	emit clientPoolChanged(client.id());
-
-	//TODO update pool client
 }
 
