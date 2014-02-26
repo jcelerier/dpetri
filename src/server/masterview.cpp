@@ -40,20 +40,15 @@ void MasterView::updateConnectionList()
 void MasterView::updateClientPool(int id)
 {
 	auto list = ui->clientList->selectedItems();
-	// Vérifier l'id du client actuellement sélectionné
 	if(list.isEmpty()) return;
 
 	auto text = list.first()->text().toStdString();
-	auto it = std::find_if(pOscmgr->clients().begin(),
-						   pOscmgr->clients().end(),
-						   [id] (RemoteClient& c)
-						{ return c.id() == id;});
+	auto& client = (*pOscmgr)[id];
 
-	if(it == pOscmgr->clients().end() ||
-	   it->name() != text) return;
+	if(client.name() != text) return;
 
 	ui->clientNodeList->clear();
-	for(OwnedNode& e : it->pool().nodes)
+	for(OwnedNode& e : client.pool().nodes)
 	{
 		ui->clientNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}
@@ -71,16 +66,10 @@ void MasterView::updateLocalPool()
 void MasterView::onClientSelection(QListWidgetItem* selected)
 {
 	auto text = selected->text().toStdString();
-
-	auto it = std::find_if(pOscmgr->clients().begin(),
-						   pOscmgr->clients().end(),
-						   [text] (RemoteClient& c)
-						{ return c.name() == text;});
-
-	if(it == pOscmgr->clients().end()) return;
+	auto& client = (*pOscmgr)[text];
 
 	ui->clientNodeList->clear();
-	for(OwnedNode& e : it->pool().nodes)
+	for(OwnedNode& e : client.pool().nodes)
 	{
 		ui->clientNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}

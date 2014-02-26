@@ -61,6 +61,8 @@ void ZeroconfConnectDialog::connectTo()
 	QTreeWidgetItem *item = selectedItems.at(0);
 	QVariant variant = item->data(0, Qt::UserRole);
 	bonjourResolver->resolveBonjourRecord(variant.value<BonjourRecord>());
+
+	close();
 }
 
 void ZeroconfConnectDialog::connectToServer(const QHostInfo &hostInfo, int port)

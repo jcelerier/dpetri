@@ -113,7 +113,7 @@
  <connections>
   <connection>
    <sender>clientList</sender>
-   <signal>itemChanged(QListWidgetItem*)</signal>
+   <signal>itemClicked(QListWidgetItem*)</signal>
    <receiver>MasterView</receiver>
    <slot>onClientSelection(QListWidgetItem*)</slot>
    <hints>

@@ -36,6 +36,31 @@ class ClientManager
 			return _clients;
 		}
 
+		// Returns client by id
+		RemoteClient& operator[](unsigned int i)
+		{
+			auto it = std::find_if(_clients.begin(),
+								   _clients.end(),
+								   [i] (RemoteClient& cl)
+			{ return cl.id() == i; });
+
+			if(it == _clients.end()) throw "Bad client";
+
+			return *it;
+		}
+
+		RemoteClient& operator[](std::string& s)
+		{
+			auto it = std::find_if(_clients.begin(),
+								   _clients.end(),
+								   [&s] (RemoteClient& cl)
+			{ return cl.name() == s; });
+
+			if(it == _clients.end()) throw "Bad client";
+
+			return *it;
+		}
+
 		// Handlers pour take et giveback
 
 

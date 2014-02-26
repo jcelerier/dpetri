@@ -89,21 +89,15 @@ void MainWindow::handleTake(osc::ReceivedMessageArgumentStream m)
 
 	m >> idRemote >> idNode >> osc::EndMessage;
 
-	auto it = std::find_if(manager.clients().begin(),
-						   manager.clients().end(),
-						   [idRemote] (RemoteClient& c )
-	{ return c.id() == idRemote; });
-
-	if(it == manager.clients().end()) return;
+	auto& client = manager[idRemote];
 
 	// Vérifier si la node est bien dans le pool
-	it->take(idNode, pnmodel.pool, true);
+	client.take(idNode, pnmodel.pool, true);
 
 	emit localPoolChanged();
-	emit clientPoolChanged(it->id());
+	emit clientPoolChanged(client.id());
 
 	//TODO update pool client
-
 }
 
 void MainWindow::handleGive(osc::ReceivedMessageArgumentStream m)
@@ -113,18 +107,13 @@ void MainWindow::handleGive(osc::ReceivedMessageArgumentStream m)
 
 	m >> idRemote >> idNode >> osc::EndMessage;
 
-	auto it = std::find_if(manager.clients().begin(),
-						   manager.clients().end(),
-						   [idRemote] (RemoteClient& c )
-	{ return c.id() == idRemote; });
-
-	if(it == manager.clients().end()) return;
+	auto& client = manager[idRemote];
 
 	// Vérifier si la node est bien dans le pool
-	it->give(idNode, pnmodel.pool, true);
+	client.give(idNode, pnmodel.pool, true);
 
 	emit localPoolChanged();
-	emit clientPoolChanged(it->id());
+	emit clientPoolChanged(client.id());
 
 	//TODO update pool client
 }

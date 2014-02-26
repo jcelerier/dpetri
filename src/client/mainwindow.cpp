@@ -94,25 +94,11 @@ void MainWindow::handleAckTake(osc::ReceivedMessageArgumentStream args)
 
 	args >> id >> nodeId >> osc::EndMessage;
 
-	// On doit faire passer node de pool du serveur vers pool local
-	// Obtenir it vers pool du serveur :
-	auto it = std::find_if(clientMgr.clients().begin(),
-						   clientMgr.clients().end(),
-						   [] (RemoteClient& cl)
-	{ return cl.id() == 0; });
-
-	if(it == clientMgr.clients().end()) return;
-
-	// Trouver la node d'id nodeId
-	auto nit = std::find_if(it->pool().nodes.begin(),
-							it->pool().nodes.end(),
-							[&nodeId] (OwnedNode& n)
-	{ return n.id == nodeId; });
-	pnmodel.pool.nodes.splice(pnmodel.pool.nodes.begin(), it->pool().nodes, nit);
+	auto& origin = clientMgr[id];
+	origin.give(nodeId, pnmodel.pool, false);
 
 	emit poolChanged();
 	emit localPoolChanged();
-
 }
 
 
@@ -123,22 +109,8 @@ void MainWindow::handleAckGive(osc::ReceivedMessageArgumentStream args)
 
 	args >> id >> nodeId >> osc::EndMessage;
 
-	// On doit faire passer node de pool local vers pool du serveur
-	// Obtenir it vers pool du serveur :
-	auto it = std::find_if(clientMgr.clients().begin(),
-						   clientMgr.clients().end(),
-						   [] (RemoteClient& cl)
-	{ return cl.id() == 0; });
-
-	if(it == clientMgr.clients().end()) return;
-
-	// Trouver la node d'id nodeId
-	auto nit = std::find_if(pnmodel.pool.nodes.begin(),
-							pnmodel.pool.nodes.end(),
-							[&nodeId] (OwnedNode& n)
-	{ return n.id == nodeId; });
-
-	it->pool().nodes.splice(it->pool().nodes.begin(), pnmodel.pool.nodes, nit);
+	auto& origin = clientMgr[id];
+	origin.take(nodeId, pnmodel.pool, false);
 
 	emit poolChanged();
 	emit localPoolChanged();
@@ -151,17 +123,11 @@ void MainWindow::handleDump(osc::ReceivedMessageArgumentStream args)
 	args >> b >> osc::EndMessage;
 
 	// Charger dans le pool du client 0
+	auto& server = clientMgr[0];
 
-	auto it = std::find_if(clientMgr.clients().begin(),
-						   clientMgr.clients().end(),
-						   [] (RemoteClient& cl)
-	{ return cl.id() == 0; });
+	server.pool().load(pnmodel.net, static_cast<const char*>(b.data));
+	emit poolChanged();
 
-	if(it != clientMgr.clients().end())
-	{
-		it->pool().load(pnmodel.net, static_cast<const char*>(b.data));
-		emit poolChanged();
-	}
 }
 
 void MainWindow::openConnectionDialog()
@@ -205,46 +171,19 @@ void MainWindow::newConnection(QHostAddress ip, quint16 port)
 void MainWindow::takeNode(QString s)
 {
 	// Faire un take vers le pool du client d'id 0 (le serveur)
-	auto it = std::find_if(clientMgr.clients().begin(),
-						   clientMgr.clients().end(),
-						   [] (RemoteClient& cl)
-	{ return cl.id() == 0; });
+	auto& server = clientMgr[0];
+	auto& node = server.pool()[s.toStdString()];
 
-	if(it != clientMgr.clients().end())
-	{
-		auto node = std::find_if(it->pool().nodes.begin(),
-								 it->pool().nodes.end(),
-								 [&s] (OwnedNode& n)
-		{ return n.node->getName() == s.toStdString(); });
-
-		if(node != it->pool().nodes.end())
-		{
-			osc::MessageGenerator m;
-			it->send(m("/pool/take", (osc::int32) localId, (osc::int32) node->id));
-		}
-	}
-	// Il envoie la demande
-
-	// A la réception de ack on applique
+	server.send(osc::MessageGenerator()
+				("/pool/take", (osc::int32) localId, (osc::int32) node.id));
 }
 
 void MainWindow::giveNode(QString s)
 {
 	// Faire un give vers le pool du client d'id 0 (le serveur)
-	auto it = std::find_if(clientMgr.clients().begin(),
-						   clientMgr.clients().end(),
-						   [] (RemoteClient& cl)
-	{ return cl.id() == 0; });
+	auto& server = clientMgr[0];
+	auto& node = pnmodel.pool[s.toStdString()];
 
-	if(it == clientMgr.clients().end()) return;
-
-	auto node = std::find_if(pnmodel.pool.nodes.begin(),
-							 pnmodel.pool.nodes.end(),
-							 [&s] (OwnedNode& n)
-	{ return n.node->getName() == s.toStdString(); });
-
-	if(node == it->pool().nodes.end()) return;
-
-	it->send(osc::MessageGenerator()
-			 ("/pool/give", (osc::int32) localId, (osc::int32) node->id));
+	server.send(osc::MessageGenerator()
+				("/pool/give", (osc::int32) localId, (osc::int32) node.id));
 }

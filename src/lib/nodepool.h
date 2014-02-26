@@ -49,5 +49,30 @@ class NodePool
 			}
 		}
 
+
+		OwnedNode& operator[](std::string s)
+		{
+			auto it = std::find_if(nodes.begin(),
+								   nodes.end(),
+								   [&s] (OwnedNode& n)
+			{ return n.node->getName() == s; });
+
+			if(it == nodes.end()) throw "Bad node";
+
+			return *it;
+		}
+
+		OwnedNode& operator[](unsigned int i)
+		{
+			auto it = std::find_if(nodes.begin(),
+								   nodes.end(),
+								   [i] (OwnedNode& n)
+			{ return n.id == i; });
+
+			if(it == nodes.end()) throw "Bad node";
+
+			return *it;
+		}
+
 		std::list<OwnedNode> nodes;
 };

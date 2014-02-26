@@ -18,21 +18,15 @@ ClientView::ClientView(QWidget* parent) :
 
 void ClientView::updatePool()
 {
-	ui->poolNodeList->clear();
-
 	// Chercher les nodes du serveur
-	auto it = std::find_if(myParent->clientMgr.clients().begin(),
-						   myParent->clientMgr.clients().end(),
-						   [] (RemoteClient& cl)
-	{ return cl.id() == 0; });
+	auto& server = myParent->clientMgr[0];
 
-	if(it != myParent->clientMgr.clients().end())
+	ui->poolNodeList->clear();
+	for(OwnedNode& e : server.pool().nodes)
 	{
-		for(OwnedNode& e : it->pool().nodes)
-		{
-			ui->poolNodeList->addItem(QString::fromStdString(e.node->getName()));
-		}
+		ui->poolNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}
+
 }
 
 void ClientView::updateLocalPool()
