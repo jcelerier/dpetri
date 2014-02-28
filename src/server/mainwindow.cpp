@@ -60,7 +60,7 @@ void MainWindow::handleConnection(osc::ReceivedMessageArgumentStream args)
 	const char* ip;
 	osc::int32 port;
 
-	args >> id >> hostname >> ip >> port >> osc::EndMessage;
+	args  >> hostname >> id >> ip >> port >> osc::EndMessage;
 
 	//// Création de l'émetteur vers le client
 	auto& newClient = clientMgr.createConnection(std::string(hostname),
