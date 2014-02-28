@@ -38,7 +38,7 @@ class MainWindow : public QMainWindow
 		OscReceiver receiver{7000};
 
 		PetriNetModel pnmodel;
-		ClientManager manager;
+		ClientManager clientMgr;
 };
 
 #endif // MAINWINDOW_H

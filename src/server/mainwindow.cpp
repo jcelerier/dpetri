@@ -6,7 +6,6 @@
 #include <QDebug>
 #include <sstream>
 #include <osctools.h>
-#include <petrinettools.h>
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -16,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 	ui->centralwidget->setPetriNetModel(pnmodel);
-	ui->centralwidget->setOscManager(manager);
+	ui->centralwidget->setOscManager(clientMgr);
 
 	connect(ui->actionLoad_a_Petri_Net, SIGNAL(triggered()),
 			&pnmodel,					SLOT(loadFile()));
@@ -36,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->centralwidget, SIGNAL(play()),
 			&pnmodel,		   SLOT(start()));
 
-	receiver.addHandler("/connect",
+	receiver.addHandler("/connect/discover",
 						std::bind(&MainWindow::handleConnection, this, std::placeholders::_1));
 
 	receiver.addHandler("/pool/take",
@@ -56,84 +55,80 @@ MainWindow::~MainWindow()
 void MainWindow::handleConnection(osc::ReceivedMessageArgumentStream args)
 {
 	//// Récupération des données extérieures
+	int id; // inutilisé
 	const char* hostname;
 	const char* ip;
 	osc::int32 port;
 
-	args >> hostname >> ip >> port >> osc::EndMessage;
+	args >> id >> hostname >> ip >> port >> osc::EndMessage;
 
 	//// Création de l'émetteur vers le client
-	auto& sender = manager.createConnection(std::string(hostname),
+	auto& newClient = clientMgr.createConnection(std::string(hostname),
 												 std::string(ip),
 												 port);
+
+	newClient.send("/connect/set_id",
+				   newClient.id());
+
 	emit connectionListChanged();
 
-	//// Envoi du réseau de petri vers le client
-	PetriNetSerializer ser(pnmodel.net());
-	const char * cstr = ser.toFIONA();
+	//// Envoi du réseau de petri vers le nouveau client
+	pnmodel.dumpTo(newClient);
 
-	osc::MessageGenerator m(1024 + ser.size());
-	sender.send(m("/petrinet/dump", osc::Blob(cstr, ser.size())));
+	//// Envoi du pool vers le nouveau client
+	pnmodel.pool().dumpTo(0, newClient);
 
-	//// Envoi du pool vers le client
-
-	auto str2 = pnmodel.pool().dump();
-	sender.send(m("/pool/dump", osc::Blob(str2.c_str(), str2.size())));
+	//// Envoi des informations des autres clients vers le nouveau client
+	for(RemoteClient& c : clientMgr)
+		newClient.initConnectionTo(c);
 }
 
-void MainWindow::handleTake(osc::ReceivedMessageArgumentStream m)
+void MainWindow::handleTake(osc::ReceivedMessageArgumentStream args)
 {
 	osc::int32 idRemote;
 	osc::int32 idNode;
 
-	m >> idRemote >> idNode >> osc::EndMessage;
+	args >> idRemote >> idNode >> osc::EndMessage;
 
-	auto& client = manager[idRemote];
+	auto& client = clientMgr[idRemote];
 
 	// Vérifier si la node est bien dans le pool
 	client.take(idNode, pnmodel.pool());
-	client.send(osc::MessageGenerator()
-		 ("/pool/ackTake", 0, (osc::int32) idNode)); // Cas serveur
+	client.send("/pool/ackTake",
+				0,
+				(osc::int32) idNode); // Cas serveur
 
-	//Mise-à-jour des pools des autres clients
-	for(RemoteClient& c : manager.clients())
+	//Mise-à-jour de l'image du pool serveur des autres clients
+	for(RemoteClient& c : clientMgr)
 	{
 		if(c.id() != idRemote)
-		{
-			qDebug() << "Sending to: " << c.id() << c.name().c_str();
-			auto str2 = pnmodel.pool().dump();
-			c.send(osc::MessageGenerator(1024 + str2.size())
-						("/pool/dump", osc::Blob(str2.c_str(), str2.size())));
-		}
+			pnmodel.pool().dumpTo(0, c);
 	}
 
 	emit localPoolChanged();
 	emit clientPoolChanged(client.id());
 }
 
-void MainWindow::handleGive(osc::ReceivedMessageArgumentStream m)
+void MainWindow::handleGive(osc::ReceivedMessageArgumentStream args)
 {
 	osc::int32 idRemote;
 	osc::int32 idNode;
 
-	m >> idRemote >> idNode >> osc::EndMessage;
+	args >> idRemote >> idNode >> osc::EndMessage;
 
-	auto& client = manager[idRemote];
+	auto& client = clientMgr[idRemote];
 
 	// Vérifier si la node est bien dans le pool
 	client.give(idNode, pnmodel.pool());
-	client.send(osc::MessageGenerator()
-		 ("/pool/ackGive", 0, (osc::int32) idNode));
+	client.send("/pool/ackGive",
+				0,
+				(osc::int32) idNode);
 
 	//Mise-à-jour des pools des autres clients
-	for(RemoteClient& c : manager.clients())
+	for(RemoteClient& c : clientMgr)
 	{
 		if(c.id() != idRemote)
-		{
-			auto str2 = pnmodel.pool().dump();
-			c.send(osc::MessageGenerator(1024 + str2.size())
-						("/pool/dump", osc::Blob(str2.c_str(), str2.size())));
-		}
+			pnmodel.pool().dumpTo(0, c);
 	}
 
 	emit localPoolChanged();

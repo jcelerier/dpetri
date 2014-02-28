@@ -6,6 +6,9 @@
 
 class ClientManager
 {
+		friend std::vector<RemoteClient>::iterator begin(ClientManager& c);
+		friend std::vector<RemoteClient>::iterator end(ClientManager& c);
+
 	private:
 		std::vector<RemoteClient> _clients;
 		unsigned int _lastId = 0;
@@ -15,7 +18,8 @@ class ClientManager
 		ClientManager(const ClientManager& c) = delete;
 		ClientManager& operator=(const ClientManager& c) = delete;
 
-		RemoteClient& createConnection(std::string hostname,
+		RemoteClient& createConnection(const int id,
+									   std::string hostname,
 									   const std::string& ip,
 									   const int port)
 		{
@@ -30,12 +34,22 @@ class ClientManager
 			}
 
 			// Les ID partent de 1 (server = 0)
-			_clients.emplace_back((hostname == "server")? 0 : ++_lastId,
+			_clients.emplace_back(id,
 								  hostname,
 								  ip,
 								  port);
 
 			return _clients.back();
+		}
+
+		RemoteClient& createConnection(std::string hostname,
+									   const std::string& ip,
+									   const int port)
+		{
+			return createConnection((hostname == "server")? 0 : ++_lastId,
+									hostname,
+									ip,
+									port);
 		}
 
 		std::vector<RemoteClient>& clients()
@@ -67,4 +81,24 @@ class ClientManager
 
 			return *it;
 		}
+
+		bool hasClient(int i)
+		{
+			auto it = std::find_if(_clients.begin(),
+								   _clients.end(),
+								   [i] (RemoteClient& cl)
+			{ return cl.id() == i; });
+
+			return it != _clients.end();
+		}
 };
+
+inline std::vector<RemoteClient>::iterator begin(ClientManager& c)
+{
+	return c._clients.begin();
+}
+
+inline std::vector<RemoteClient>::iterator end(ClientManager& c)
+{
+	return c._clients.end();
+}

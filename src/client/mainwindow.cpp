@@ -7,11 +7,36 @@
 #include <osc/OscOutboundPacketStream.h>
 #include <osctools.h>
 
+
+QString getIp(QHostAddress serverIP)
+{
+	// Cas local
+	if(serverIP == QHostAddress::LocalHost) return "127.0.0.1";
+
+	// Cas distant
+	QList<QHostAddress> list = QNetworkInterface::allAddresses();
+
+	for(int nIter=0; nIter<list.count(); nIter++)
+	{
+		if(!list[nIter].isLoopback())
+			if (list[nIter].protocol() == QAbstractSocket::IPv4Protocol )
+				return list[nIter].toString();
+	}
+
+	return "0.0.0.0";
+}
+
+
+
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
 	connectDialog(new ZeroconfConnectDialog(this)),
-	pnmodel(this)
+	pnmodel(this),
+	localClient(-1, // Est assigné par serveur
+				QHostInfo::localHostName().toStdString(),
+				getIp(QHostAddress::LocalHost).toStdString(),
+				receiver.port())
 {
 	ui->setupUi(this);
 
@@ -19,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->centralwidget->setParent(this);
 
 	connect(connectDialog, SIGNAL(connectedTo(QHostAddress,quint16)),
-			this,		   SLOT(newConnection(QHostAddress,quint16)));
+			this,		   SLOT(newServerConnection(QHostAddress,quint16)));
 
 	connect(&pnmodel,		   SIGNAL(poolChanged()),
 			ui->centralwidget, SLOT(updatePool()));
@@ -41,13 +66,13 @@ MainWindow::MainWindow(QWidget *parent) :
 								  this,
 								  std::placeholders::_1));
 
-	receiver.addHandler("/connect/id",
+	receiver.addHandler("/connect/set_id",
 						std::bind(&MainWindow::handleIdReception,
 								  this,
 								  std::placeholders::_1));
 
 	receiver.addHandler("/pool/dump",
-						std::bind(&MainWindow::handleDump,
+						std::bind(&MainWindow::handlePoolDump,
 								  this,
 								  std::placeholders::_1));
 
@@ -61,12 +86,41 @@ MainWindow::MainWindow(QWidget *parent) :
 								  this,
 								  std::placeholders::_1));
 
+	receiver.addHandler("/pool/ackGive",
+						std::bind(&MainWindow::handleConnectDiscover,
+								  this,
+								  std::placeholders::_1));
+
 	receiver.run();
 }
 
 MainWindow::~MainWindow()
 {
 	delete ui;
+}
+
+void MainWindow::handleConnectDiscover(osc::ReceivedMessageArgumentStream args)
+{
+	osc::int32 id;
+	const char* name;
+	const char* ip;
+	osc::int32 port;
+
+	args >> name >> id >> ip >> port >> osc::EndMessage;
+
+	if(clientMgr.hasClient(id)) return;
+
+	auto& remote = clientMgr.createConnection(id,
+											  std::string(name),
+											  std::string(ip),
+											  port);
+
+	//// Lui faire la demande de connection
+	remote.initConnectionTo(localClient);
+
+	//TODO attention si le réseau lag ici ? faire une attente ?
+	//// Lui envoyer notre pool
+	pnmodel.pool().dumpTo(localClient.id(), remote);
 }
 
 void MainWindow::handlePetriNetReception(osc::ReceivedMessageArgumentStream args)
@@ -82,7 +136,7 @@ void MainWindow::handleIdReception(osc::ReceivedMessageArgumentStream args)
 	osc::int32 id;
 	args >> id >> osc::EndMessage;
 
-	localId = id;
+	localClient.setId(id);
 	qDebug() << "I got id " << id << " !";
 }
 
@@ -98,6 +152,17 @@ void MainWindow::handleAckTake(osc::ReceivedMessageArgumentStream args)
 
 	emit poolChanged();
 	emit localPoolChanged();
+
+	for(RemoteClient& c : clientMgr)
+	{
+		if(c.id() != 0) // Pas le serveur (why not ?)
+			pnmodel.pool().dumpTo(localClient.id(), c);
+	}
+
+	// Potentiellement unifier en rajoutant un message
+	// "/pool/confirm id-from id-to id-node"
+	// que chacun applique ?
+	// -> plus besoin d'envoyer les pool (mais cas ou ils ne communiquent pas ?)
 }
 
 
@@ -113,20 +178,24 @@ void MainWindow::handleAckGive(osc::ReceivedMessageArgumentStream args)
 
 	emit poolChanged();
 	emit localPoolChanged();
+
+	for(RemoteClient& c : clientMgr)
+	{
+		if(c.id() != 0) // Pas le serveur (why not?)
+			pnmodel.pool().dumpTo(localClient.id(), c);
+	}
 }
 
-
-void MainWindow::handleDump(osc::ReceivedMessageArgumentStream args)
+void MainWindow::handlePoolDump(osc::ReceivedMessageArgumentStream args)
 {
+	osc::int32 id;
 	osc::Blob b;
-	args >> b >> osc::EndMessage;
+	args >> id >> b >> osc::EndMessage;
 
 	// Charger dans le pool du client 0
-	auto& server = clientMgr[0];
+	clientMgr[id].pool().load(pnmodel.net(), static_cast<const char*>(b.data));
 
-	server.pool().load(pnmodel.net(), static_cast<const char*>(b.data));
-	emit poolChanged();
-
+	if(id == 0) emit poolChanged(); // Serveur
 }
 
 void MainWindow::openConnectionDialog()
@@ -134,36 +203,15 @@ void MainWindow::openConnectionDialog()
 	connectDialog->exec();
 }
 
-QString getIp(QHostAddress serverIP)
+void MainWindow::newServerConnection(QHostAddress ip, quint16 port)
 {
-	// Cas local
-	if(serverIP == QHostAddress::LocalHost) return "127.0.0.1";
-
-	// Cas distant
-	QList<QHostAddress> list = QNetworkInterface::allAddresses();
-
-	for(int nIter=0; nIter<list.count(); nIter++)
-	{
-		if(!list[nIter].isLoopback())
-			if (list[nIter].protocol() == QAbstractSocket::IPv4Protocol )
-				return list[nIter].toString();
-	}
-
-	return "0.0.0.0";
-}
-
-void MainWindow::newConnection(QHostAddress ip, quint16 port)
-{
+	// Connection via zeroconf
 	if(ip.toString() == QString("0.0.0.0"))
 		ip = QHostAddress::LocalHost;
 
 	auto& sender = clientMgr.createConnection("server", ip.toString().toStdString(), port);
 
-	osc::MessageGenerator m;
-	sender.send(m("/connect",
-				  QHostInfo::localHostName().toStdString().c_str(),
-				  getIp(ip).toStdString().c_str(),
-				  (osc::int32) receiver.port()));
+	sender.initConnectionTo(localClient);
 }
 
 void MainWindow::takeNode(QString s)
@@ -172,8 +220,9 @@ void MainWindow::takeNode(QString s)
 	auto& server = clientMgr[0];
 	auto& node = server.pool()[s.toStdString()];
 
-	server.send(osc::MessageGenerator()
-				("/pool/take", (osc::int32) localId, (osc::int32) node.id));
+	server.send("/pool/take",
+				(osc::int32) localClient.id(),
+				(osc::int32) node.id);
 }
 
 void MainWindow::giveNode(QString s)
@@ -182,6 +231,7 @@ void MainWindow::giveNode(QString s)
 	auto& server = clientMgr[0];
 	auto& node = pnmodel.pool()[s.toStdString()];
 
-	server.send(osc::MessageGenerator()
-				("/pool/give", (osc::int32) localId, (osc::int32) node.id));
+	server.send("/pool/give",
+				(osc::int32) localClient.id(),
+				(osc::int32) node.id);
 }

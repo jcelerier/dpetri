@@ -6,24 +6,29 @@
 using namespace pnapi;
 class ExecutionAlgorithmBase
 {
-	protected:
-		PetriNet& _net;
-		Clock& _clock;
-
 	public:
-		ExecutionAlgorithmBase(PetriNet& net, Clock& clock):
+		using ChangeCallback = std::function<void()>;
+
+		ExecutionAlgorithmBase(ChangeCallback cb, PetriNet& net, Clock& clock):
 			_net(net),
-			_clock(clock)
+			_clock(clock),
+			_callback(cb)
 		{
 		}
 
 		virtual void start() = 0;
 		virtual ~ExecutionAlgorithmBase() = default;
+
+	protected:
+		PetriNet& _net;
+		Clock& _clock;
+		ChangeCallback _callback;
 };
 
 class LocalExecutionAlgorithm : public ExecutionAlgorithmBase
 {
 	public:
+
 		using ExecutionAlgorithmBase::ExecutionAlgorithmBase;
 		virtual void start()
 		{
@@ -44,6 +49,7 @@ class LocalExecutionAlgorithm : public ExecutionAlgorithmBase
 					// Ajouter jetons aux suivants
 					std::vector<std::reference_wrapper<Place>> pre;
 					unsigned int count{0};
+
 					// Tests sur antécédents
 					for(Arc* a : t->getPresetArcs())
 					{
@@ -80,7 +86,7 @@ class LocalExecutionAlgorithm : public ExecutionAlgorithmBase
 								place.setTokenCount(place.getTokenCount() + 1);
 							}
 
-						//	emit netChanged();
+							_callback();
 						}
 					}
 				}

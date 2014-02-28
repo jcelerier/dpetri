@@ -23,11 +23,12 @@ class MainWindow : public QMainWindow
 		explicit MainWindow(QWidget *parent = 0);
 		~MainWindow();
 
+		void handleConnectDiscover(osc::ReceivedMessageArgumentStream args);
 		void handlePetriNetReception(osc::ReceivedMessageArgumentStream args);
 		void handleIdReception(osc::ReceivedMessageArgumentStream args);
 		void handleAckTake(osc::ReceivedMessageArgumentStream args);
 		void handleAckGive(osc::ReceivedMessageArgumentStream args);
-		void handleDump(osc::ReceivedMessageArgumentStream args);
+		void handlePoolDump(osc::ReceivedMessageArgumentStream args);
 
 	signals:
 		void poolChanged();
@@ -35,7 +36,7 @@ class MainWindow : public QMainWindow
 
 	public slots:
 		void openConnectionDialog();
-		void newConnection(QHostAddress ip, quint16 port);
+		void newServerConnection(QHostAddress ip, quint16 port);
 
 		void takeNode(QString s);
 		void giveNode(QString s);
@@ -48,6 +49,7 @@ class MainWindow : public QMainWindow
 
 		PetriNetModel pnmodel;
 		ClientManager clientMgr;
+		Client localClient;
 
 		unsigned int localId;
 };

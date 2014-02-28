@@ -16,6 +16,21 @@ namespace osc
 			}
 
 			template <typename... T>
+			MessageGenerator(const std::string& name, const T&... args)
+			{
+				operator()(name, args...);
+			}
+
+			template <typename... T>
+			MessageGenerator(unsigned int c, const std::string& name, const T&... args):
+				buffer(c),
+				p(buffer.data(), c)
+			{
+				operator()(name, args...);
+			}
+
+
+			template <typename... T>
 			const osc::OutboundPacketStream&  operator()(const std::string& name, const T&... args)
 			{
 				p.Clear();

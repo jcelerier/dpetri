@@ -53,7 +53,7 @@ class PetriNetSerializer
 			delete[] serializedData;
 
 			agset(G, (char*) "label", (char*)"");
-			gvLayout (gvc, G, "dot");
+			gvLayout (gvc, G, "neato");
 
 			gvRenderData(gvc, G, "svg", &serializedData, &_size);
 			gvFreeLayout(gvc, G);

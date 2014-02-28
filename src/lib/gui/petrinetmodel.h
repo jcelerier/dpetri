@@ -10,6 +10,9 @@
 
 #include "executionalgorithmbase.h"
 
+#include "petrinettools.h"
+#include "remoteclient.h"
+
 using namespace pnapi;
 class PetriNetModel : public QObject
 {
@@ -23,8 +26,9 @@ class PetriNetModel : public QObject
 	public:
 		PetriNetModel(QObject * parent):
 			QObject(parent),
-			_algorithm(_net, _clock)
+			_algorithm(std::bind(&PetriNetModel::netChanged, this), _net, _clock)
 		{
+			netChanged();
 		}
 
 		const PetriNet& net() const
@@ -35,6 +39,16 @@ class PetriNetModel : public QObject
 		NodePool& pool()
 		{
 			return _pool;
+		}
+
+		void dumpTo(RemoteClient& c)
+		{
+			PetriNetSerializer ser(net());
+			const char* dmp = ser.toFIONA();
+
+			c.send(osc::MessageGenerator(1024 + ser.size(),
+										 "/petrinet/dump",
+										 osc::Blob(dmp, ser.size())));
 		}
 
 	public slots:

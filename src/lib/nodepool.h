@@ -5,8 +5,8 @@
 #include <sstream>
 
 #include <osc/OscReceivedElements.h>
+#include "osctools.h"
 #include "ownednode.h"
-
 using namespace pnapi;
 class NodePool
 {
@@ -92,6 +92,18 @@ class NodePool
 			if(it == end(from)) return;
 
 			_nodes.splice(_nodes.end(), from._nodes, it);
+		}
+
+		template<class TClient>
+		void dumpTo(int localid, TClient& c)
+		{
+			std::cerr << "Sending pool dump to: " << c.id() << " " << c.name().c_str() << std::endl;
+			//TODO Cache
+			auto str2 = dump();
+			c.send(osc::MessageGenerator(1024 + str2.size(),
+										 "/pool/dump",
+										 localid,
+										 osc::Blob(str2.c_str(), str2.size())));
 		}
 
 	private:
