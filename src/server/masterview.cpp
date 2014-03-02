@@ -18,19 +18,14 @@ MasterView::~MasterView()
 	delete ui;
 }
 
-void MasterView::setModel(LocalClient& cl)
+void MasterView::setServerLogic(ServerLogic* cl)
 {
-	_client = &cl;
-}
-
-void MasterView::setOscManager(ClientManager& osc)
-{
-	pOscmgr = &osc;
+	_logic = cl;
 }
 
 void MasterView::updateConnectionList()
 {
-	auto& clients = pOscmgr->clients();
+	auto& clients = _logic->remoteClients.clients();
 
 	ui->clientList->clear();
 	for(auto& c : clients)
@@ -43,7 +38,7 @@ void MasterView::updateClientPool(int id)
 	if(list.isEmpty()) return;
 
 	auto text = list.first()->text().toStdString();
-	auto& client = (*pOscmgr)[id];
+	auto& client = _logic->remoteClients[id];
 
 	if(client.name() != text) return;
 
@@ -57,7 +52,7 @@ void MasterView::updateClientPool(int id)
 void MasterView::updateLocalPool()
 {
 	ui->localNodeList->clear();
-	for(OwnedNode& e : _client->pool())
+	for(OwnedNode& e : _logic->localClient.pool())
 	{
 		ui->localNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}
@@ -66,7 +61,7 @@ void MasterView::updateLocalPool()
 void MasterView::onClientSelection(QListWidgetItem* selected)
 {
 	auto text = selected->text().toStdString();
-	auto& client = (*pOscmgr)[text];
+	auto& client = _logic->remoteClients[text];
 
 	ui->clientNodeList->clear();
 	for(OwnedNode& e : client.pool())
@@ -77,6 +72,6 @@ void MasterView::onClientSelection(QListWidgetItem* selected)
 
 void MasterView::updateNet()
 {
-	ui->petriNetView->updatePetriNet(_client->model().net());
+	ui->petriNetView->updatePetriNet(_logic->localClient.model().net());
 }
 

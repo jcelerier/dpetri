@@ -6,6 +6,7 @@
 #include <client/localclient.h>
 
 #include <clientmanager.h>
+#include "serverlogic.h"
 namespace Ui {
 	class MasterView;
 }
@@ -17,9 +18,7 @@ class MasterView : public QWidget
 	public:
 		explicit MasterView(QWidget *parent = 0);
 		~MasterView();
-		void setModel(LocalClient& pnm);
-		void setOscManager(ClientManager& osc);
-
+		void setServerLogic(ServerLogic* pnm);
 	signals:
 		void play();
 
@@ -32,9 +31,8 @@ class MasterView : public QWidget
 		void updateNet();
 
 	private:
-		LocalClient* _client;
+		ServerLogic* _logic;
 		Ui::MasterView *ui;
-		ClientManager* pOscmgr;
 };
 
 #endif // MASTERVIEW_H

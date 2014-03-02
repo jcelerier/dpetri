@@ -9,11 +9,13 @@ SOURCES += \
     main.cpp \
     server.cpp \
     masterview.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    serverlogic.cpp
 
 HEADERS += server.h \
     masterview.h \
-    mainwindow.h
+    mainwindow.h \
+    serverlogic.h
 
 
 LIBS += -lpnapi -loscpack -ldns_sd -lgvc -lcgraph

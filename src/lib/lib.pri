@@ -20,4 +20,5 @@ HEADERS += \
     ../lib/ownednode.h \
     ../lib/gui/executionalgorithmbase.h \
     ../lib/client/client.h \
-    ../lib/client/localclient.h
+    ../lib/client/localclient.h \
+    ../lib/commonlogic.h

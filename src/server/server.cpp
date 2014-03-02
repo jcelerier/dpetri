@@ -39,7 +39,7 @@ void ZeroconfServer::sendConnectionData()
 	out.setVersion(QDataStream::Qt_5_2);
 	out << (quint16) 0;
 	out << tcpServer->serverAddress()
-		<< (quint16) dynamic_cast<MainWindow*>(parent())->localClient.port();
+		<< (quint16) dynamic_cast<MainWindow*>(parent())->logic.localClient.port();
 	out.device()->seek(0);
 	out << (quint16)(block.size() - sizeof(quint16));
 

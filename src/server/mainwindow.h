@@ -2,10 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <oscreceiver.h>
-#include <clientmanager.h>
 #include "server.h"
-#include <client/localclient.h>
+#include "serverlogic.h"
 
 namespace Ui {
 	class MainWindow;
@@ -26,8 +24,7 @@ class MainWindow : public QMainWindow
 
 		// OscPack handlers
 		void handleConnection(osc::ReceivedMessageArgumentStream m);
-		void handleTake(osc::ReceivedMessageArgumentStream m);
-		void handleGive(osc::ReceivedMessageArgumentStream m);
+
 
 	signals:
 		void connectionListChanged();
@@ -42,8 +39,7 @@ class MainWindow : public QMainWindow
 		Ui::MainWindow *ui;
 		ZeroconfServer* server;
 
-		ClientManager clientMgr;
-		LocalClient localClient;
+		ServerLogic logic;
 };
 
 #endif // MAINWINDOW_H
