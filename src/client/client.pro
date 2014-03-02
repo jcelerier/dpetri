@@ -9,13 +9,15 @@ SOURCES += \
     main.cpp \
     clientview.cpp \
     mainwindow.cpp \
-    zeroconfconnectdialog.cpp
+    zeroconfconnectdialog.cpp \
+    clientlogic.cpp
 
 HEADERS += \
     clientview.h \
     mainwindow.h \
     zeroconfconnectdialog.h \
-    oscconnectionmanager.h
+    oscconnectionmanager.h \
+    clientlogic.h
 
 
 LIBS += -lpnapi -loscpack -ldns_sd -lgvc -lcgraph

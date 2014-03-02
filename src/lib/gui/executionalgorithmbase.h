@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <pnapi/pnapi.h>
+#include "../nodepool.h"
 #include "../clock.h"
 
 using namespace pnapi;
@@ -8,6 +9,7 @@ class ExecutionAlgorithmBase
 {
 	public:
 		using ChangeCallback = std::function<void()>;
+		using TransitionCallback = std::function<void()>;
 
 		ExecutionAlgorithmBase(ChangeCallback cb, PetriNet& net, Clock& clock):
 			_net(net),
@@ -94,4 +96,19 @@ class LocalExecutionAlgorithm : public ExecutionAlgorithmBase
 
 			_clock.stop();
 		}
+};
+
+
+class NetworkExecutionAlgorithm : public ExecutionAlgorithmBase
+{
+	private:
+		NodePool& _pool;
+	public:
+		NetworkExecutionAlgorithm(NodePool& p, ChangeCallback cb, PetriNet& net, Clock& clock):
+			ExecutionAlgorithmBase(cb, net, clock),
+			_pool(p)
+		{
+		}
+
+
 };

@@ -18,10 +18,9 @@ MasterView::~MasterView()
 	delete ui;
 }
 
-void MasterView::setPetriNetModel(PetriNetModel& pnm)
+void MasterView::setModel(LocalClient& cl)
 {
-	model = &pnm;
-	ui->petriNetView->setModel(pnm);
+	_client = &cl;
 }
 
 void MasterView::setOscManager(ClientManager& osc)
@@ -58,7 +57,7 @@ void MasterView::updateClientPool(int id)
 void MasterView::updateLocalPool()
 {
 	ui->localNodeList->clear();
-	for(OwnedNode& e : model->pool())
+	for(OwnedNode& e : _client->pool())
 	{
 		ui->localNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}
@@ -75,3 +74,9 @@ void MasterView::onClientSelection(QListWidgetItem* selected)
 		ui->clientNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}
 }
+
+void MasterView::updateNet()
+{
+	ui->petriNetView->updatePetriNet(_client->model().net());
+}
+

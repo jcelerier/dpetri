@@ -4,7 +4,7 @@
 #include "server.h"
 #include "mainwindow.h"
 
-Server::Server(MainWindow *parent):
+ZeroconfServer::ZeroconfServer(MainWindow *parent):
 	QObject(parent)
 {
 	tcpServer = new QTcpServer(this);
@@ -20,7 +20,8 @@ Server::Server(MainWindow *parent):
 	qDebug() << "ZeroConf Address: "   <<  tcpServer->serverAddress();
 	qDebug() << "ZeroConf Port: " << tcpServer->serverPort();
 
-	connect(tcpServer, SIGNAL(newConnection()), this, SLOT(sendConnectionData()));
+	connect(tcpServer, SIGNAL(newConnection()),
+			this,	   SLOT(sendConnectionData()));
 
 	bonjourRegister = new BonjourServiceRegister(this);
 	bonjourRegister->registerService(BonjourRecord(tr("Distributed Petri Net on %1").arg(QHostInfo::localHostName()),
@@ -29,17 +30,20 @@ Server::Server(MainWindow *parent):
 									 tcpServer->serverPort());
 }
 
-void Server::sendConnectionData()
+void ZeroconfServer::sendConnectionData()
 {
+	qDebug() << "Ici";
 	QByteArray block;
 	QDataStream out(&block, QIODevice::WriteOnly);
 
 	out.setVersion(QDataStream::Qt_5_2);
 	out << (quint16) 0;
 	out << tcpServer->serverAddress()
-		<< (quint16) dynamic_cast<MainWindow*>(parent())->receiver.port();
+		<< (quint16) dynamic_cast<MainWindow*>(parent())->localClient.port();
 	out.device()->seek(0);
 	out << (quint16)(block.size() - sizeof(quint16));
+
+	qDebug() << out;
 
 	QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
 	connect(clientConnection, SIGNAL(disconnected()),

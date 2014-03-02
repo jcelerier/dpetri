@@ -3,61 +3,9 @@
 #include <list>
 #include <string>
 #include <pnapi/pnapi.h>
-#include "nodepool.h"
-#include "osctools.h"
+#include "../osctools.h"
 
-class Client
-{
-	public:
-		Client(const int id,
-			   const std::string& hostname,
-			   const std::string& ip,
-			   const int port):
-			_id(id),
-			_name(hostname),
-			_ip(ip),
-			_port(port)
-		{
-		}
-
-		virtual ~Client() = default;
-		Client(Client&& c) = default;
-		Client(const Client& c) = delete;
-		Client& operator=(const Client& c) = delete;
-
-		void setId(int id)
-		{
-			_id = id;
-		}
-
-		int id() const
-		{
-			return _id;
-		}
-
-		const std::string& name() const
-		{
-			return _name;
-		}
-
-		const std::string& ip() const
-		{
-			return _ip;
-		}
-
-		int port() const
-		{
-			return _port;
-		}
-
-
-	protected:
-		int _id;
-		const std::string _name;
-		const std::string _ip;
-		const int _port;
-};
-
+#include "client.h"
 class RemoteClient : public Client
 {
 	public:
@@ -92,22 +40,6 @@ class RemoteClient : public Client
 			send(osc::MessageGenerator(name, args...));
 		}
 
-		// A appeler si on reçoit un message osc d'un autre client : /pool/take...
-		void take(unsigned int nodeId, NodePool& fromPool)
-		{
-			_localPool.take(fromPool, nodeId);
-		}
-
-		void give(unsigned int nodeId, NodePool& toPool)
-		{
-			toPool.take(_localPool, nodeId);
-		}
-
-		NodePool& pool()
-		{
-			return _localPool;
-		}
-
 		// Cette méthode est appelée par le serveur.
 		// Elle dit au client A (this) d'initier la connection avec le client B (c).
 		void initConnectionTo(Client& c)
@@ -124,6 +56,5 @@ class RemoteClient : public Client
 
 	private:
 		OscSender _sender;
-		NodePool _localPool;
 };
 

@@ -19,7 +19,7 @@ class NodePool
 		NodePool(const NodePool&) = delete;
 		NodePool& operator=(const NodePool&) = delete;
 
-		void reload(PetriNet& net) // A appeler sur serveur
+		void reload(const PetriNet& net) // A appeler sur serveur
 		{
 			unsigned int id = 0;
 			auto pn_nodes = net.getNodes();
@@ -40,11 +40,12 @@ class NodePool
 			return s.str();
 		}
 
-		void load(const PetriNet& net, const char* str)
+		void loadFromString(const PetriNet& net, const char* str)
 		{
 			_nodes.clear();
 			std::istringstream s(str);
 			std::string line;
+
 			while(std::getline(s, line))
 			{
 				std::istringstream l(line);
@@ -56,6 +57,14 @@ class NodePool
 				//TODO check
 				_nodes.emplace_back(net.findNode(name), id);
 			}
+		}
+
+		bool hasNode(std::string s)
+		{
+			return std::find_if(_nodes.begin(),
+								_nodes.end(),
+								[&s] (OwnedNode& n)
+		 { return n.node->getName() == s; }) != _nodes.end();
 		}
 
 		OwnedNode& operator[](std::string s)

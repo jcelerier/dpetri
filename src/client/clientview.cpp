@@ -16,10 +16,10 @@ ClientView::ClientView(QWidget* parent) :
 			this,			  SLOT(poolToClient()));
 }
 
-void ClientView::updatePool()
+void ClientView::updateServerPool()
 {
 	// Chercher les nodes du serveur
-	auto& server = myParent->clientMgr[0];
+	auto& server = _logic->remoteClients[0];
 
 	ui->poolNodeList->clear();
 	for(OwnedNode& e : server.pool())
@@ -32,7 +32,7 @@ void ClientView::updatePool()
 void ClientView::updateLocalPool()
 {
 	ui->localNodeList->clear();
-	for(const OwnedNode& e : model->pool())
+	for(const OwnedNode& e : _logic->localClient.pool())
 	{
 		ui->localNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}
@@ -61,13 +61,12 @@ ClientView::~ClientView()
 	delete ui;
 }
 
-void ClientView::setPetriNetModel(PetriNetModel& pnm)
+void ClientView::setClientLogic(ClientLogic* logic)
 {
-	model = &pnm;
-	ui->petriNetView->setModel(pnm);
+	_logic = logic;
 }
 
-void ClientView::setParent(MainWindow* window)
+void ClientView::updateNet()
 {
-	myParent = window;
+	ui->petriNetView->updatePetriNet(_logic->localClient.model().net());
 }

@@ -1,4 +1,4 @@
-QT += widgets network svg
+QT += core widgets network svg
 TEMPLATE = app
 CONFIG +=  c++11 thread
 DESTDIR = ../../output/

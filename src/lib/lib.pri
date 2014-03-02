@@ -15,7 +15,9 @@ HEADERS += \
     $$PWD/osctools.h \
     $$PWD/petrinettools.h \
     $$PWD/nodepool.h \
-    ../lib/remoteclient.h \
+    $$PWD/client/remoteclient.h \
     ../lib/remotepetrinetmanager.h \
     ../lib/ownednode.h \
-    ../lib/gui/executionalgorithmbase.h
+    ../lib/gui/executionalgorithmbase.h \
+    ../lib/client/client.h \
+    ../lib/client/localclient.h

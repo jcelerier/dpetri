@@ -3,7 +3,8 @@
 
 #include <QWidget>
 #include <QListWidgetItem>
-#include <gui/petrinetmodel.h>
+#include <client/localclient.h>
+
 #include <clientmanager.h>
 namespace Ui {
 	class MasterView;
@@ -16,7 +17,7 @@ class MasterView : public QWidget
 	public:
 		explicit MasterView(QWidget *parent = 0);
 		~MasterView();
-		void setPetriNetModel(PetriNetModel& pnm);
+		void setModel(LocalClient& pnm);
 		void setOscManager(ClientManager& osc);
 
 	signals:
@@ -28,8 +29,10 @@ class MasterView : public QWidget
 		void updateLocalPool();
 		void onClientSelection(QListWidgetItem*);
 
+		void updateNet();
+
 	private:
-		PetriNetModel* model;
+		LocalClient* _client;
 		Ui::MasterView *ui;
 		ClientManager* pOscmgr;
 };

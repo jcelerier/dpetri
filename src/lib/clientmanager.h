@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "remoteclient.h"
+#include "client/remoteclient.h"
 #include "nodepool.h"
 
 class ClientManager
@@ -84,12 +84,10 @@ class ClientManager
 
 		bool hasClient(int i)
 		{
-			auto it = std::find_if(_clients.begin(),
-								   _clients.end(),
-								   [i] (RemoteClient& cl)
-			{ return cl.id() == i; });
-
-			return it != _clients.end();
+			return std::find_if(_clients.begin(),
+								_clients.end(),
+								[i] (RemoteClient& cl)
+		 { return cl.id() == i; }) != _clients.end();
 		}
 };
 

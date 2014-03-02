@@ -2,7 +2,7 @@
 #define CLIENTVIEW_H
 
 #include <QWidget>
-#include <gui/petrinetmodel.h>
+#include "clientlogic.h"
 
 namespace Ui {
 	class ClientView;
@@ -16,24 +16,25 @@ class ClientView : public QWidget
 		explicit ClientView(QWidget *parent = 0);
 		~ClientView();
 
-		void setPetriNetModel(PetriNetModel& pnm);
-		void setParent(MainWindow* window);
+		void setClientLogic(ClientLogic*);
 
 	signals:
 		void take(QString);
 		void give(QString);
 
 	public slots:
-		void updatePool();
+		void updateNet();
+		void updateServerPool();
 		void updateLocalPool();
+
 	private slots:
 		void clientToPool();
 		void poolToClient();
 
 	private:
 		Ui::ClientView *ui;
-		PetriNetModel* model;
-		MainWindow* myParent;
+		LocalClient* _client;
+		ClientLogic* _logic;
 };
 
 #endif // CLIENTVIEW_H

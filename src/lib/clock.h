@@ -32,7 +32,7 @@ class Clock
 			_time = t;
 		}
 
-		time_type get()
+		time_type get() const
 		{
 			return _time.load();
 		}

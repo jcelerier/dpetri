@@ -4,24 +4,28 @@
 #include "masterview.h"
 #include <functional>
 #include <QDebug>
+#include <QCoreApplication>
 #include <sstream>
 #include <osctools.h>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
-	server(new Server(this)),
-	pnmodel(this)
+	server(new ZeroconfServer(this)),
+	localClient(0, // Est assigné par serveur
+				"server",
+				"0.0.0.0",
+				7000,
+				std::bind(&MainWindow::localNetChanged, this),
+				std::bind(&MainWindow::localPoolChanged, this))
 {
 	ui->setupUi(this);
-	ui->centralwidget->setPetriNetModel(pnmodel);
+	ui->centralwidget->setModel(localClient);
 	ui->centralwidget->setOscManager(clientMgr);
 
 	connect(ui->actionLoad_a_Petri_Net, SIGNAL(triggered()),
-			&pnmodel,					SLOT(loadFile()));
-
-	connect(&pnmodel,		   SIGNAL(poolChanged()),
-			ui->centralwidget, SLOT(updateLocalPool()));
+			this,					SLOT(loadNetAndPoolFromFile()));
 
 	connect(this,			   SIGNAL(connectionListChanged()),
 			ui->centralwidget, SLOT(updateConnectionList()));
@@ -32,24 +36,48 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(this,			   SIGNAL(clientPoolChanged(int)),
 			ui->centralwidget, SLOT(updateClientPool(int)));
 
-	connect(ui->centralwidget, SIGNAL(play()),
-			&pnmodel,		   SLOT(start()));
+	connect(this, SIGNAL(localNetChanged()),
+			ui->centralwidget, SLOT(updateNet()));
 
-	receiver.addHandler("/connect/discover",
-						std::bind(&MainWindow::handleConnection, this, std::placeholders::_1));
+	localClient.receiver().addHandler("/connect/discover",
+									  &MainWindow::handleConnection, this);
 
-	receiver.addHandler("/pool/take",
-						std::bind(&MainWindow::handleTake, this, std::placeholders::_1));
+	localClient.receiver().addHandler("/pool/take",
+									  &MainWindow::handleTake, this);
 
-	receiver.addHandler("/pool/give",
-						std::bind(&MainWindow::handleGive, this, std::placeholders::_1));
+	localClient.receiver().addHandler("/pool/give",
+									  &MainWindow::handleGive, this);
 
-	receiver.run();
+/*	receiver.addHandler("/petrinet/addToken",
+						std::bind(&PetriNetModel::handleAddToken,
+								  pnmodel,
+								  std::placeholders::_1));
+
+	receiver.addHandler("/petrinet/removeToken",
+						std::bind(&PetriNetModel::handleRemoveToken,
+								  pnmodel,
+								  std::placeholders::_1));
+*/
+
+	auto x = QCoreApplication::arguments();
+	if(x.size() > 1)
+	{
+		loadFromFile(x.at(1));
+	}
 }
 
 MainWindow::~MainWindow()
 {
 	delete ui;
+}
+
+void MainWindow::loadNetAndPoolFromFile()
+{
+	QString file = QFileDialog::getOpenFileName(nullptr,
+												tr("Choose a Petri Net"),
+												QString(),
+												tr("FIONA File (*.fiona)"));
+	loadFromFile(file);
 }
 
 void MainWindow::handleConnection(osc::ReceivedMessageArgumentStream args)
@@ -73,10 +101,10 @@ void MainWindow::handleConnection(osc::ReceivedMessageArgumentStream args)
 	emit connectionListChanged();
 
 	//// Envoi du réseau de petri vers le nouveau client
-	pnmodel.dumpTo(newClient);
+	localClient.model().dumpTo(newClient);
 
 	//// Envoi du pool vers le nouveau client
-	pnmodel.pool().dumpTo(0, newClient);
+	localClient.pool().dumpTo(0, newClient);
 
 	//// Envoi des informations des autres clients vers le nouveau client
 	for(RemoteClient& c : clientMgr)
@@ -93,7 +121,7 @@ void MainWindow::handleTake(osc::ReceivedMessageArgumentStream args)
 	auto& client = clientMgr[idRemote];
 
 	// Vérifier si la node est bien dans le pool
-	client.take(idNode, pnmodel.pool());
+	client.take(idNode, localClient.pool());
 	client.send("/pool/ackTake",
 				0,
 				(osc::int32) idNode); // Cas serveur
@@ -102,7 +130,7 @@ void MainWindow::handleTake(osc::ReceivedMessageArgumentStream args)
 	for(RemoteClient& c : clientMgr)
 	{
 		if(c.id() != idRemote)
-			pnmodel.pool().dumpTo(0, c);
+			localClient.pool().dumpTo(0, c);
 	}
 
 	emit localPoolChanged();
@@ -119,7 +147,7 @@ void MainWindow::handleGive(osc::ReceivedMessageArgumentStream args)
 	auto& client = clientMgr[idRemote];
 
 	// Vérifier si la node est bien dans le pool
-	client.give(idNode, pnmodel.pool());
+	client.give(idNode, localClient.pool());
 	client.send("/pool/ackGive",
 				0,
 				(osc::int32) idNode);
@@ -128,10 +156,16 @@ void MainWindow::handleGive(osc::ReceivedMessageArgumentStream args)
 	for(RemoteClient& c : clientMgr)
 	{
 		if(c.id() != idRemote)
-			pnmodel.pool().dumpTo(0, c);
+			localClient.pool().dumpTo(0, c);
 	}
 
 	emit localPoolChanged();
 	emit clientPoolChanged(client.id());
+}
+
+void MainWindow::loadFromFile(QString s)
+{
+	std::ifstream f(s.toStdString());
+	localClient.loadNetAndPool(f);
 }
 

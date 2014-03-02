@@ -5,7 +5,7 @@
 #include <oscreceiver.h>
 #include <clientmanager.h>
 #include "server.h"
-#include <gui/petrinetmodel.h>
+#include <client/localclient.h>
 
 namespace Ui {
 	class MainWindow;
@@ -15,12 +15,14 @@ class MasterView;
 class MainWindow : public QMainWindow
 {
 		Q_OBJECT
-		friend class Server;
+		friend class ZeroconfServer;
 		friend class MasterView;
 
 	public:
 		explicit MainWindow(QWidget *parent = 0);
 		~MainWindow();
+
+		void loadFromFile(QString s);
 
 		// OscPack handlers
 		void handleConnection(osc::ReceivedMessageArgumentStream m);
@@ -29,16 +31,19 @@ class MainWindow : public QMainWindow
 
 	signals:
 		void connectionListChanged();
+		void localNetChanged();
 		void localPoolChanged();
 		void clientPoolChanged(int id);
 
+	public slots:
+		void loadNetAndPoolFromFile();
+
 	private:
 		Ui::MainWindow *ui;
-		Server* server;
-		OscReceiver receiver{7000};
+		ZeroconfServer* server;
 
-		PetriNetModel pnmodel;
 		ClientManager clientMgr;
+		LocalClient localClient;
 };
 
 #endif // MAINWINDOW_H

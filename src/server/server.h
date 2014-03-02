@@ -4,11 +4,11 @@
 class MainWindow;
 class BonjourServiceRegister;
 
-class Server : public QObject
+class ZeroconfServer : public QObject
 {
 		Q_OBJECT
 	public:
-		Server(MainWindow *parent = 0);
+		ZeroconfServer(MainWindow *parent = 0);
 
 	private slots:
 		void sendConnectionData();

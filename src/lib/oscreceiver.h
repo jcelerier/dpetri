@@ -40,6 +40,12 @@ class OscReceiver
 			_runThread = std::thread(&UdpListeningReceiveSocket::Run, socket.get());
 		}
 
+		template<typename T, class C>
+		void addHandler(const std::string &s, T&& theMember, C&& theClass)
+		{
+			_impl.addHandler(s, std::bind(theMember, theClass, std::placeholders::_1));
+		}
+
 		void addHandler(const std::string &s, const	message_handler h)
 		{
 			_impl.addHandler(s, h);
