@@ -47,14 +47,9 @@ class Client
 		}
 
 		// A appeler si on reçoit un message osc d'un autre client : /pool/take...
-		void take(unsigned int nodeId, NodePool& fromPool)
+		void give(unsigned int nodeId, Client& to)
 		{
-			_localPool.take(fromPool, nodeId);
-		}
-
-		void give(unsigned int nodeId, NodePool& toPool)
-		{
-			toPool.take(_localPool, nodeId);
+			to._localPool.take(this->_localPool, nodeId);
 		}
 
 		NodePool& pool()
@@ -66,7 +61,7 @@ class Client
 		int _id;
 		std::string _name;
 		const std::string _ip;
-		const int _port;
+		int _port;
 
 		NodePool _localPool;
 };

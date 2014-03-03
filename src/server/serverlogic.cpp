@@ -17,6 +17,7 @@ void ServerLogic::handleConnection(osc::ReceivedMessageArgumentStream args)
 	osc::int32 port;
 
 	args  >> hostname >> id >> ip >> port >> osc::EndMessage;
+	qDebug() << "Handle Connection: " << hostname << id << ip << port;
 
 	//// Création de l'émetteur vers le client
 	auto& newClient = remoteClients.createConnection(std::string(hostname),

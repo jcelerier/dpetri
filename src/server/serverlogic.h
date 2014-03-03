@@ -11,5 +11,6 @@ class ServerLogic : public CommonLogic
 		void connectionListChanged();
 	public:
 		ServerLogic(QObject* parent);
+		virtual ~ServerLogic() = default;
 		void handleConnection(osc::ReceivedMessageArgumentStream args);
 };

@@ -25,6 +25,7 @@ ZeroconfConnectDialog::ZeroconfConnectDialog(QWidget *parent)
 
 	tcpSocket = new QTcpSocket(this);
 
+
 	connect(connectButton, SIGNAL(clicked()), this, SLOT(connectTo()));
 	connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
 	connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readConnectionData()));
@@ -43,6 +44,7 @@ ZeroconfConnectDialog::ZeroconfConnectDialog(QWidget *parent)
 
 void ZeroconfConnectDialog::connectTo()
 {
+	qDebug() << "Ici, on CLIQUE SUR LE BOUTON";
 	blockSize = 0;
 	tcpSocket->abort();
 
@@ -67,9 +69,13 @@ void ZeroconfConnectDialog::connectTo()
 
 void ZeroconfConnectDialog::connectToServer(const QHostInfo &hostInfo, int port)
 {
+
 	const QList<QHostAddress> &addresses = hostInfo.addresses();
 	if (!addresses.isEmpty())
 		tcpSocket->connectToHost(addresses.first(), port);
+	qDebug() << "ZeroConf connect to: " << port;
+	qDebug() << "zeroconf port: " << tcpSocket->localPort() << tcpSocket->peerPort();
+
 }
 
 void ZeroconfConnectDialog::readConnectionData()
@@ -101,19 +107,19 @@ void ZeroconfConnectDialog::displayError(QAbstractSocket::SocketError socketErro
 		case QAbstractSocket::RemoteHostClosedError:
 			break;
 		case QAbstractSocket::HostNotFoundError:
-			QMessageBox::information(this, tr("Fortune Client"),
+			QMessageBox::information(this, tr("Client"),
 									 tr("The host was not found. Please check the "
 										"host name and port settings."));
 			break;
 		case QAbstractSocket::ConnectionRefusedError:
-			QMessageBox::information(this, tr("Fortune Client"),
+			QMessageBox::information(this, tr("Client"),
 									 tr("The connection was refused by the peer. "
 										"Make sure the fortune server is running, "
 										"and check that the host name and port "
 										"settings are correct."));
 			break;
 		default:
-			QMessageBox::information(this, tr("Fortune Client"),
+			QMessageBox::information(this, tr("Client"),
 									 tr("The following error occurred: %1.")
 									 .arg(tcpSocket->errorString()));
 	}

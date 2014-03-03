@@ -43,12 +43,12 @@ void ZeroconfServer::sendConnectionData()
 	out.device()->seek(0);
 	out << (quint16)(block.size() - sizeof(quint16));
 
-	qDebug() << out;
-
 	QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
+
 	connect(clientConnection, SIGNAL(disconnected()),
 			clientConnection, SLOT(deleteLater()));
 
+	qDebug() << clientConnection->localPort() << clientConnection->peerPort();
 	clientConnection->write(block);
 	clientConnection->disconnectFromHost();
 }

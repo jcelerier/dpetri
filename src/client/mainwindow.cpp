@@ -10,8 +10,8 @@
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
-	connectDialog(new ZeroconfConnectDialog(this)),
-	logic(this)
+	logic(this),
+	connectDialog(new ZeroconfConnectDialog(this))
 {
 	ui->setupUi(this);
 

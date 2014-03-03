@@ -21,16 +21,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionLoad_a_Petri_Net, SIGNAL(triggered()),
 			this,					SLOT(loadNetAndPoolFromFile()));
 
-	connect(this,			   SIGNAL(connectionListChanged()),
+	connect(&logic,			   SIGNAL(connectionListChanged()),
 			ui->centralwidget, SLOT(updateConnectionList()));
 
-	connect(this,			   SIGNAL(localPoolChanged()),
+	connect(&logic,			   SIGNAL(localPoolChanged()),
 			ui->centralwidget, SLOT(updateLocalPool()));
 
-	connect(this,			   SIGNAL(clientPoolChanged(int)),
+	connect(&logic,			   SIGNAL(clientPoolChanged(int)),
 			ui->centralwidget, SLOT(updateClientPool(int)));
 
-	connect(this, SIGNAL(localNetChanged()),
+	connect(&logic, SIGNAL(localNetChanged()),
 			ui->centralwidget, SLOT(updateNet()));
 
 

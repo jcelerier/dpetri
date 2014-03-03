@@ -26,12 +26,6 @@ class MainWindow : public QMainWindow
 		void handleConnection(osc::ReceivedMessageArgumentStream m);
 
 
-	signals:
-		void connectionListChanged();
-		void localNetChanged();
-		void localPoolChanged();
-		void clientPoolChanged(int id);
-
 	public slots:
 		void loadNetAndPoolFromFile();
 

@@ -1,10 +1,18 @@
 #include "clientlogic.h"
 #include "mainwindow.h"
 
-
+#include <chrono>
+std::string getLastTimestampDigits()
+{
+	auto t = std::to_string(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+			 return t.substr(t.size() - 4);
+}
 
 ClientLogic::ClientLogic(MainWindow* parent):
-	CommonLogic(-1, QHostInfo::localHostName().toStdString(), 9877, parent)
+	CommonLogic(-1,
+				QHostInfo::localHostName().toStdString() + getLastTimestampDigits(),
+				9877,
+				parent)
 {
 
 	//// Connection

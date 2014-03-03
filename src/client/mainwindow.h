@@ -26,9 +26,10 @@ class MainWindow : public QMainWindow
 
 	private:
 		Ui::MainWindow *ui;
-		ZeroconfConnectDialog* connectDialog;
 
 		ClientLogic logic;
+
+		ZeroconfConnectDialog* connectDialog;
 
 };
 

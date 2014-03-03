@@ -99,6 +99,7 @@ class NodePool
 			{ return n.id == nodeId; });
 
 			if(it == end(from)) return;
+			std::cerr << "Take a eu lieu";
 
 			_nodes.splice(_nodes.end(), from._nodes, it);
 		}

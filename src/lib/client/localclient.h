@@ -13,7 +13,6 @@ class LocalClient : public Client
 	private:
 		PetriNetModel _netModel;
 		Clock _clock;
-		NodePool _pool;
 
 		OscReceiver _receiver;
 
@@ -27,11 +26,12 @@ class LocalClient : public Client
 					const int port,
 					SignalHandler netChanged,
 					SignalHandler poolChanged):
-			Client(id, hostname, ip, port),
+			Client(id, hostname, ip, -1),
 			_receiver(port),
 			_netChanged(netChanged),
 			_poolChanged(poolChanged)
 		{
+			this->_port = _receiver.port();
 			_receiver.run();
 		}
 
@@ -44,13 +44,8 @@ class LocalClient : public Client
 		void loadNetAndPool(std::istream& s)
 		{
 			loadNet(s);
-			_pool.reload(_netModel.net());
+			_localPool.reload(_netModel.net());
 			_poolChanged();
-		}
-
-		NodePool& pool()
-		{
-			return _pool;
 		}
 
 		const Clock& clock() const

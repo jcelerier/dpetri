@@ -39,6 +39,15 @@ class CommonLogic : public QObject
 											  &CommonLogic::handleGive, this);
 		}
 
+		void handleInfoTransfer(osc::ReceivedMessageArgumentStream args)
+		{
+			osc::int32 nodeId, fromId, toId;
+			args >> nodeId >> fromId >> toId;
+
+			remoteClients[fromId].give(nodeId, remoteClients[toId]);
+		}
+
+		// /pool/infoTransfer node from to;
 		void handleAckTake(osc::ReceivedMessageArgumentStream args)
 		{
 			osc::int32 id;
@@ -46,23 +55,17 @@ class CommonLogic : public QObject
 
 			args >> id >> nodeId >> osc::EndMessage;
 
-			remoteClients[id].give(nodeId, localClient.pool());
+			remoteClients[id].give(nodeId, localClient);
 
-			emit serverPoolChanged();
+			if(id == 0) emit serverPoolChanged();
 			emit localPoolChanged();
-
-			std::cerr << "Number  of clients: " << remoteClients.clients().size() << std::endl;
 
 			for(RemoteClient& c : remoteClients)
 			{
 				if(c.id() != 0) // Pas le serveur (why not ?)
-					localClient.pool().dumpTo(localClient.id(), c);
+					c.send("/pool/infoTransfer", nodeId, id, localClient.id());
+					//localClient.pool().dumpTo(localClient.id(), c);
 			}
-
-			// Potentiellement unifier en rajoutant un message
-			// "/pool/confirm id-from id-to id-node"
-			// que chacun applique ?
-			// -> plus besoin d'envoyer les pool (mais cas ou ils ne communiquent pas ?)
 		}
 
 
@@ -73,15 +76,16 @@ class CommonLogic : public QObject
 
 			args >> id >> nodeId >> osc::EndMessage;
 
-			remoteClients[id].take(nodeId, localClient.pool());
+			localClient.give(nodeId, remoteClients[id]);
 
-			emit serverPoolChanged();
+			if(id == 0) emit serverPoolChanged();
 			emit localPoolChanged();
 
 			for(RemoteClient& c : remoteClients)
 			{
 				if(c.id() != 0) // Pas le serveur (il le fait, changer?)
-					localClient.pool().dumpTo(localClient.id(), c);
+					c.send("/pool/infoTransfer", nodeId, localClient.id(), id);
+					//localClient.pool().dumpTo(localClient.id(), c);
 			}
 		}
 
@@ -251,8 +255,64 @@ class CommonLogic : public QObject
 		}
 
 
-	public slots:
+		void handleTake(osc::ReceivedMessageArgumentStream args)
+		{
+			osc::int32 idRemote;
+			osc::int32 idNode;
 
+			args >> idRemote >> idNode >> osc::EndMessage;
+
+			auto& rclient = remoteClients[idRemote];
+
+			// Vérifier si la node est bien dans le pool
+
+			localClient.give(idNode, rclient);
+
+			rclient.send("/pool/ackTake",
+						0,
+						(osc::int32) idNode); // Cas serveur
+
+			//Mise-à-jour de l'image du pool serveur des autres clients
+//			for(RemoteClient& c : remoteClients)
+//			{
+//				if(c.id() != idRemote)
+//					localClient.pool().dumpTo(0, c);
+//			}
+
+			emit localPoolChanged();
+			emit clientPoolChanged(rclient.id());
+		}
+
+		void handleGive(osc::ReceivedMessageArgumentStream args)
+		{
+			osc::int32 idRemote;
+			osc::int32 idNode;
+
+			args >> idRemote >> idNode >> osc::EndMessage;
+
+			auto& rclient = remoteClients[idRemote];
+
+			// Vérifier si la node est bien dans le pool
+			rclient.give(idNode, localClient);
+			rclient.send("/pool/ackGive",
+						0,
+						(osc::int32) idNode);
+
+			//Mise-à-jour des pools des autres clients
+//			for(RemoteClient& c : remoteClients)
+//			{
+//				if(c.id() != idRemote)
+//					localClient.pool().dumpTo(0, c);
+//			}
+
+			emit localPoolChanged();
+			emit clientPoolChanged(rclient.id());
+		}
+
+
+
+
+	public slots:
 		void takeNode(QString s)
 		{
 			// Faire un take vers le pool du client d'id 0 (le serveur)
@@ -273,59 +333,6 @@ class CommonLogic : public QObject
 			server.send("/pool/give",
 						(osc::int32) localClient.id(),
 						(osc::int32) node.id);
-		}
-
-
-		void handleTake(osc::ReceivedMessageArgumentStream args)
-		{
-			osc::int32 idRemote;
-			osc::int32 idNode;
-
-			args >> idRemote >> idNode >> osc::EndMessage;
-
-			auto& client = remoteClients[idRemote];
-
-			// Vérifier si la node est bien dans le pool
-			client.take(idNode, localClient.pool());
-			client.send("/pool/ackTake",
-						0,
-						(osc::int32) idNode); // Cas serveur
-
-			//Mise-à-jour de l'image du pool serveur des autres clients
-			for(RemoteClient& c : remoteClients)
-			{
-				if(c.id() != idRemote)
-					localClient.pool().dumpTo(0, c);
-			}
-
-			emit localPoolChanged();
-			emit clientPoolChanged(client.id());
-		}
-
-		void handleGive(osc::ReceivedMessageArgumentStream args)
-		{
-			osc::int32 idRemote;
-			osc::int32 idNode;
-
-			args >> idRemote >> idNode >> osc::EndMessage;
-
-			auto& client = remoteClients[idRemote];
-
-			// Vérifier si la node est bien dans le pool
-			client.give(idNode, localClient.pool());
-			client.send("/pool/ackGive",
-						0,
-						(osc::int32) idNode);
-
-			//Mise-à-jour des pools des autres clients
-			for(RemoteClient& c : remoteClients)
-			{
-				if(c.id() != idRemote)
-					localClient.pool().dumpTo(0, c);
-			}
-
-			emit localPoolChanged();
-			emit clientPoolChanged(client.id());
 		}
 
 	private:
