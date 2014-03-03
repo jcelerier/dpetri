@@ -32,293 +32,56 @@ class CommonLogic : public QObject
 						std::bind(&CommonLogic::localNetChanged, this),
 						std::bind(&CommonLogic::localPoolChanged, this))
 		{
+			//// Réseau de Petri
+			localClient.receiver().addHandler("/petrinet/dump",
+											  &LocalClient::handlePetriNetReception, &localClient);
+			localClient.receiver().addHandler("/petrinet/addToken",
+											  &CommonLogic::handleAddToken, this);
+			localClient.receiver().addHandler("/petrinet/removeToken",
+											  &CommonLogic::handleRemoveToken, this);
+			localClient.receiver().addHandler("/petrinet/tokenInfo",
+											  &CommonLogic::handleTokenInfo, this);
+			//// Pool
+			localClient.receiver().addHandler("/pool/dump",
+											  &CommonLogic::handlePoolDump, this);
 			localClient.receiver().addHandler("/pool/take",
 											  &CommonLogic::handleTake, this);
-
 			localClient.receiver().addHandler("/pool/give",
 											  &CommonLogic::handleGive, this);
-
 			localClient.receiver().addHandler("/pool/infoTransfer",
 											  &CommonLogic::handleInfoTransfer, this);
+			localClient.receiver().addHandler("/pool/ackTake",
+											  &CommonLogic::handleAckTake, this);
+			localClient.receiver().addHandler("/pool/ackGive",
+											  &CommonLogic::handleAckGive, this);
+
+			localClient.receiver().addHandler("/execution/start",
+											  &CommonLogic::handleStart, this);
+
+			localClient.clock().addHandle(std::bind(&CommonLogic::checkTransitions, this, std::placeholders::_1));
+
 		}
 
-		void handleInfoTransfer(osc::ReceivedMessageArgumentStream args)
+		// Renvoie le client qui posède la node d'id // nom voulu
+		Client& getClientWithNode(std::string name)
 		{
-			osc::int32 nodeId, fromId, toId;
-			args >> nodeId >> fromId >> toId;
-
-			remoteClients[fromId].give(nodeId, remoteClients[toId]);
-
-			if(fromId == 0 || toId == 0)
-			{
-				emit serverPoolChanged();
-			}
-		}
-
-		// /pool/infoTransfer node from to;
-		void handleAckTake(osc::ReceivedMessageArgumentStream args)
-		{
-			osc::int32 id;
-			osc::int32 nodeId;
-
-			args >> id >> nodeId >> osc::EndMessage;
-
-			remoteClients[id].give(nodeId, localClient);
-
-			if(id == 0) emit serverPoolChanged();
-			emit localPoolChanged();
+			if(localClient.pool().hasNode(name)) return localClient;
 
 			for(RemoteClient& c : remoteClients)
 			{
-				if(c.id() != 0) // Pas le serveur (why not ?)
-					c.send("/pool/infoTransfer", nodeId, id, localClient.id());
-					//localClient.pool().dumpTo(localClient.id(), c);
-			}
-		}
-
-
-		void handleAckGive(osc::ReceivedMessageArgumentStream args)
-		{
-			osc::int32 id;
-			osc::int32 nodeId;
-
-			args >> id >> nodeId >> osc::EndMessage;
-
-			localClient.give(nodeId, remoteClients[id]);
-
-			if(id == 0) emit serverPoolChanged();
-			emit localPoolChanged();
-
-			for(RemoteClient& c : remoteClients)
-			{
-				if(c.id() != 0) // Pas le serveur (il le fait, changer?)
-					c.send("/pool/infoTransfer", nodeId, localClient.id(), id);
-					//localClient.pool().dumpTo(localClient.id(), c);
-			}
-		}
-
-		void handlePoolDump(osc::ReceivedMessageArgumentStream args)
-		{
-			osc::int32 id;
-			osc::Blob b;
-			args >> id >> b >> osc::EndMessage;
-
-			remoteClients[id].pool().loadFromString(localClient.model().net(),
-													static_cast<const char*>(b.data));
-
-			if(id == 0) emit serverPoolChanged(); // Serveur
-		}
-
-		void removeToken(std::string name)
-		{
-			// Trouver qui possède cette node (ou broadcast ?)
-			if(localClient.pool().hasNode(name)) // Cas local
-			{
-				auto p = dynamic_cast<Place*>(localClient.pool()[name].node);
-				if(p)
-				{
-					p->setTokenCount(p->getTokenCount() - 1);
-				}
-				return;
-			}
-			else
-			{
-				// chercher dans tous les pools clients
-				for(RemoteClient& c : remoteClients)
-				{
-					if(c.pool().hasNode(name))
-					{
-						c.send("/net/removeToken", name.c_str());
-						return;
-					}
-				}
+				if(c.pool().hasNode(name)) return c;
 			}
 
-			throw "Error: nobody has this node!";
+			throw "Node not found";
 		}
 
-		void handleAddToken(osc::ReceivedMessageArgumentStream args)
+		void startAlgorithm()
 		{
-			const char * tname;
-			args >> tname >> osc::EndMessage;
-
-			auto place = dynamic_cast<Place*>(localClient.pool()[std::string(tname)].node);
-			place->setTokenCount(place->getTokenCount()+1);
-
-			updateRemotePlace(place);
+			localClient.clock().start();
 		}
 
-		void handleRemoveToken(osc::ReceivedMessageArgumentStream args)
-		{
-			const char * tname;
-			args >> tname >> osc::EndMessage;
-
-			auto place = dynamic_cast<Place*>(localClient.pool()[std::string(tname)].node);
-			place->setTokenCount(place->getTokenCount()-1);
-		}
-
-		void handleTokenInfo(osc::ReceivedMessageArgumentStream args)
-		{
-			const char* pname;
-			int pcount;
-
-			args >> pname >> pcount;
-
-			// Chercher le pool ou est pname.
-			auto p = localClient.model().net().findPlace(std::string(pname));
-			p->setTokenCount(pcount);
-		}
-
-		// Fonction d'exécution de transition.
-		void executeTransition(Transition* t)
-		{
-			// 1. Vérifier qu'antécédents ont jetons est fait avant
-			for(Node* n : t->getPreset())
-			{
-				removeToken(n->getName());
-			}
-
-			// 2. Envoyer nouveau jeton aux suivants
-			for(Node* n : t->getPostset())
-			{
-				addToken(n->getName());
-			}
-		}
-
-		// Quand on reçoit un jeton sur une place, on en informe la machine gérant la transitions suivantes
-		// pour qu'elles puissent chercher.
-		// Ou alors les messages de transmission de jeton sont transmis à tout le monde ?
-		void updateRemotePlace(Place* place)
-		{
-			auto t = dynamic_cast<Transition*>(*place->getPostset().begin());
-
-			// Trouver qui possède cette transition (ou broadcast ?)
-			if(!localClient.pool().hasNode(t->getName()))
-			{
-				// chercher dans tous les pools clients
-				for(RemoteClient& c : remoteClients)
-				{
-					if(c.pool().hasNode(t->getName()))
-					{
-						c.send("/petrinet/tokenInfo",
-							   place->getName().c_str(),
-							   (osc::int32) place->getTokenCount());
-					}
-				}
-			}
-		}
-
-
-
-		void addToken(std::string name)
-		{
-			// Trouver qui possède cette node (ou broadcast ?)
-			if(localClient.pool().hasNode(name)) // Cas local
-			{
-				auto p = dynamic_cast<Place*>(localClient.pool()[name].node);
-				if(p)
-				{
-					p->setTokenCount(p->getTokenCount() + 1);
-				}
-				return;
-			}
-			else
-			{
-				// chercher dans tous les pools clients
-				for(RemoteClient& c : remoteClients)
-				{
-					if(c.pool().hasNode(name))
-					{
-						c.send("/petrinet/addToken", name.c_str());
-						return;
-					}
-				}
-			}
-
-			throw "Error: nobody has this node!";
-		}
-
-		void algo()
-		{
-			// Attendre ticks d'horloge
-			// à chaque tick, regarder si on peut exécuter une des transitions
-			// que l'on possède
-			for(Transition* t : localClient.model().net().getTransitions())
-			{
-				if(localClient.pool().hasNode(t->getName()))
-				{
-					if(std::all_of(t->getPreset().begin(),
-								   t->getPreset().end(),
-								   [] (Node* n)
-					{
-								   return dynamic_cast<Place*>(n)->getTokenCount() > 0;
-				})
-							&& localClient.clock().get() > t->getCost()
-							)
-					{
-						executeTransition(t);
-					}
-				}
-			}
-		}
-
-
-		void handleTake(osc::ReceivedMessageArgumentStream args)
-		{
-			osc::int32 idRemote;
-			osc::int32 idNode;
-
-			args >> idRemote >> idNode >> osc::EndMessage;
-
-			auto& rclient = remoteClients[idRemote];
-
-			// Vérifier si la node est bien dans le pool
-
-			localClient.give(idNode, rclient);
-
-			rclient.send("/pool/ackTake",
-						0,
-						(osc::int32) idNode); // Cas serveur
-
-			//Mise-à-jour de l'image du pool serveur des autres clients
-//			for(RemoteClient& c : remoteClients)
-//			{
-//				if(c.id() != idRemote)
-//					localClient.pool().dumpTo(0, c);
-//			}
-
-			emit localPoolChanged();
-			emit clientPoolChanged(rclient.id());
-		}
-
-		void handleGive(osc::ReceivedMessageArgumentStream args)
-		{
-			osc::int32 idRemote;
-			osc::int32 idNode;
-
-			args >> idRemote >> idNode >> osc::EndMessage;
-
-			auto& rclient = remoteClients[idRemote];
-
-			// Vérifier si la node est bien dans le pool
-			rclient.give(idNode, localClient);
-			rclient.send("/pool/ackGive",
-						0,
-						(osc::int32) idNode);
-
-			//Mise-à-jour des pools des autres clients
-//			for(RemoteClient& c : remoteClients)
-//			{
-//				if(c.id() != idRemote)
-//					localClient.pool().dumpTo(0, c);
-//			}
-
-			emit localPoolChanged();
-			emit clientPoolChanged(rclient.id());
-		}
-
-
-
+#include "commonlogic.handlers.h"
+#include "commonlogic.algorithm.h"
 
 	public slots:
 		void takeNode(QString s)
@@ -361,6 +124,8 @@ class CommonLogic : public QObject
 
 			return "0.0.0.0";
 		}
+
+		std::thread _runThread;
 };
 
 

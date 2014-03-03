@@ -21,26 +21,6 @@ ClientLogic::ClientLogic(MainWindow* parent):
 	localClient.receiver().addHandler("/connect/discover",
 									  &ClientLogic::handleConnectDiscover, this);
 
-	//// Réseau de Petri
-	localClient.receiver().addHandler("/petrinet/dump",
-									  &LocalClient::handlePetriNetReception, &localClient);
-
-	//// Pool
-	localClient.receiver().addHandler("/pool/dump",
-									  &ClientLogic::handlePoolDump, this);
-	localClient.receiver().addHandler("/pool/ackTake",
-									  &ClientLogic::handleAckTake, this);
-	localClient.receiver().addHandler("/pool/ackGive",
-									  &ClientLogic::handleAckGive, this);
-
-	//// Jetons
-	localClient.receiver().addHandler("/petrinet/addToken",
-									  &ClientLogic::handleAddToken, this);
-	localClient.receiver().addHandler("/petrinet/removeToken",
-									  &ClientLogic::handleRemoveToken, this);
-	localClient.receiver().addHandler("/petrinet/tokenInfo",
-									  &ClientLogic::handleTokenInfo, this);
-
 }
 
 

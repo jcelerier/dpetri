@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
 #include "masterview.h"
 #include <functional>
 #include <QDebug>
@@ -21,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionLoad_a_Petri_Net, SIGNAL(triggered()),
 			this,					SLOT(loadNetAndPoolFromFile()));
 
+	connect(ui->centralwidget, SIGNAL(play()),
+			&logic, SLOT(sendPlay()));
+
 	connect(&logic,			   SIGNAL(connectionListChanged()),
 			ui->centralwidget, SLOT(updateConnectionList()));
 
@@ -33,17 +35,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(&logic, SIGNAL(localNetChanged()),
 			ui->centralwidget, SLOT(updateNet()));
 
-
-/*	receiver.addHandler("/petrinet/addToken",
-						std::bind(&PetriNetModel::handleAddToken,
-								  pnmodel,
-								  std::placeholders::_1));
-
-	receiver.addHandler("/petrinet/removeToken",
-						std::bind(&PetriNetModel::handleRemoveToken,
-								  pnmodel,
-								  std::placeholders::_1));
-*/
 
 	auto x = QCoreApplication::arguments();
 	if(x.size() > 1)

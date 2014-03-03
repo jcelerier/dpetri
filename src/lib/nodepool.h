@@ -61,10 +61,10 @@ class NodePool
 
 		bool hasNode(std::string s)
 		{
-			return std::find_if(_nodes.begin(),
-								_nodes.end(),
+			return std::find_if(std::begin(_nodes),
+								std::end(_nodes),
 								[&s] (OwnedNode& n)
-		 { return n.node->getName() == s; }) != _nodes.end();
+		 { return n.node->getName() == s; }) != std::end(_nodes);
 		}
 
 		OwnedNode& operator[](std::string s)

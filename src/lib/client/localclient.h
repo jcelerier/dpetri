@@ -48,7 +48,7 @@ class LocalClient : public Client
 			_poolChanged();
 		}
 
-		const Clock& clock() const
+		Clock& clock()
 		{
 			return _clock;
 		}
@@ -77,5 +77,4 @@ class LocalClient : public Client
 		{
 			args >> _id >> osc::EndMessage;
 		}
-
 };

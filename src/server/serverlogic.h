@@ -9,6 +9,10 @@ class ServerLogic : public CommonLogic
 		friend class MasterView;
 	signals:
 		void connectionListChanged();
+
+	public slots:
+		void sendPlay();
+
 	public:
 		ServerLogic(QObject* parent);
 		virtual ~ServerLogic() = default;

@@ -7,6 +7,16 @@ ServerLogic::ServerLogic(QObject* parent):
 									  &ServerLogic::handleConnection, this);
 }
 
+void ServerLogic::sendPlay()
+{
+	// Chercher le client qui a l'état init
+	startAlgorithm();
+
+	for(RemoteClient& c : remoteClients)
+	{
+		c.send("/execution/start");
+	}
+}
 
 void ServerLogic::handleConnection(osc::ReceivedMessageArgumentStream args)
 {
@@ -21,8 +31,8 @@ void ServerLogic::handleConnection(osc::ReceivedMessageArgumentStream args)
 
 	//// Création de l'émetteur vers le client
 	auto& newClient = remoteClients.createConnection(std::string(hostname),
-												 std::string(ip),
-												 port);
+													 std::string(ip),
+													 port);
 
 	newClient.send("/connect/set_id",
 				   newClient.id());

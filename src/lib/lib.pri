@@ -21,4 +21,6 @@ HEADERS += \
     ../lib/gui/executionalgorithmbase.h \
     ../lib/client/client.h \
     ../lib/client/localclient.h \
-    ../lib/commonlogic.h
+    ../lib/commonlogic.h \
+    ../lib/commonlogic.handlers.h \
+    ../lib/commonlogic.algorithm.h
