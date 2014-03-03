@@ -30,6 +30,7 @@ class MasterView : public QWidget
 
 		void updateNet();
 
+		void addLog(QString s);
 	private:
 		ServerLogic* _logic;
 		Ui::MasterView *ui;

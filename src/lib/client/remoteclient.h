@@ -1,10 +1,9 @@
 #pragma once
-#include <oscsender.h>
+#include "../osc/oscsender.h"
 #include <list>
 #include <string>
 #include <pnapi/pnapi.h>
-#include "../osctools.h"
-
+#include "../osc/oscmessagegenerator.h"
 #include "client.h"
 class RemoteClient : public Client
 {

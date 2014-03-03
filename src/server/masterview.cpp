@@ -75,3 +75,8 @@ void MasterView::updateNet()
 	ui->petriNetView->updatePetriNet(_logic->localClient.model().net());
 }
 
+void MasterView::addLog(QString s)
+{
+	ui->logger->append("\n");
+	ui->logger->append(s);
+}

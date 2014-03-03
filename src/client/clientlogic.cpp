@@ -32,10 +32,8 @@ void ClientLogic::handleConnectDiscover(osc::ReceivedMessageArgumentStream args)
 	osc::int32 port;
 
 	args >> name >> id >> ip >> port >> osc::EndMessage;
-	qDebug() << name << id << ip << port;
 
 	if(remoteClients.hasClient(id)) return;
-	qDebug() << 1;
 	auto& remote = remoteClients.createConnection(id,
 												  std::string(name),
 												  std::string(ip),

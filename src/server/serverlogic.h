@@ -1,5 +1,5 @@
 #pragma once
-#include "commonlogic.h"
+#include "commonlogic/commonlogic.h"
 
 class MasterView;
 

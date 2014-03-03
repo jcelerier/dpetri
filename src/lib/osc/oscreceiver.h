@@ -31,8 +31,6 @@ class OscReceiver
 					_port++;
 				}
 			}
-
-			std::cerr << "I am listening on port : " << _port << std::endl;
 		}
 
 		void run()
@@ -69,12 +67,8 @@ class OscReceiver
 
 			protected:
 				virtual void ProcessMessage(const osc::ReceivedMessage& m,
-											const IpEndpointName& name) override
+											const IpEndpointName&) override
 				{
-					std::cerr << "Message " << m.AddressPattern()
-							  << " received from: " << name.address
-							  << " on port: " << name.port
-							  << std::endl;
 					try
 					{
 						auto addr = std::string(m.AddressPattern());

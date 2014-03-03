@@ -120,9 +120,6 @@ void handleRemoveToken(osc::ReceivedMessageArgumentStream args)
 	const char * pname;
 	args >> pname >> osc::EndMessage;
 
-
-	qDebug() << "On est ici. Nom: " << pname;
-
 	auto place = localClient.model().net().findPlace(pname);
 	place->setTokenCount(place->getTokenCount() - 1);
 

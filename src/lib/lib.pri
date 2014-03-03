@@ -1,9 +1,9 @@
 HEADERS += \
-    $$PWD/clock.h \
-    $$PWD/clockclient.h \
-    $$PWD/clockserver.h \
-    $$PWD/oscreceiver.h \
-    $$PWD/oscsender.h \
+    $$PWD/clock/clock.h \
+    $$PWD/clock/clockclient.h \
+    $$PWD/clock/clockserver.h \
+    $$PWD/osc/oscreceiver.h \
+    $$PWD/osc/oscsender.h \
     $$PWD/clientmanager.h \
     $$PWD/petrinetstuff.h \
     $$PWD/zeroconf/bonjourrecord.h \
@@ -12,15 +12,14 @@ HEADERS += \
     $$PWD/zeroconf/bonjourserviceresolver.h \
     $$PWD/gui/petrinetview.h \
     $$PWD/gui/petrinetmodel.h \
-    $$PWD/osctools.h \
+    $$PWD/osc/oscmessagegenerator.h \
     $$PWD/petrinettools.h \
     $$PWD/nodepool.h \
     $$PWD/client/remoteclient.h \
-    ../lib/remotepetrinetmanager.h \
-    ../lib/ownednode.h \
-    ../lib/gui/executionalgorithmbase.h \
-    ../lib/client/client.h \
-    ../lib/client/localclient.h \
-    ../lib/commonlogic.h \
-    ../lib/commonlogic.handlers.h \
-    ../lib/commonlogic.algorithm.h
+    $$PWD/ownednode.h \
+    $$PWD/gui/executionalgorithmbase.h \
+    $$PWD/client/client.h \
+    $$PWD/client/localclient.h \
+    $$PWD/commonlogic/commonlogic.h \
+    $$PWD/commonlogic/commonlogic.handlers.h \
+    $$PWD/commonlogic/commonlogic.algorithm.h

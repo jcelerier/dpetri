@@ -16,10 +16,6 @@ ZeroconfServer::ZeroconfServer(MainWindow *parent):
 		return;
 	}
 
-	qDebug() << "ZeroConf Listening: " <<  tcpServer->isListening();
-	qDebug() << "ZeroConf Address: "   <<  tcpServer->serverAddress();
-	qDebug() << "ZeroConf Port: " << tcpServer->serverPort();
-
 	connect(tcpServer, SIGNAL(newConnection()),
 			this,	   SLOT(sendConnectionData()));
 
@@ -32,7 +28,6 @@ ZeroconfServer::ZeroconfServer(MainWindow *parent):
 
 void ZeroconfServer::sendConnectionData()
 {
-	qDebug() << "Ici";
 	QByteArray block;
 	QDataStream out(&block, QIODevice::WriteOnly);
 
@@ -48,7 +43,6 @@ void ZeroconfServer::sendConnectionData()
 	connect(clientConnection, SIGNAL(disconnected()),
 			clientConnection, SLOT(deleteLater()));
 
-	qDebug() << clientConnection->localPort() << clientConnection->peerPort();
 	clientConnection->write(block);
 	clientConnection->disconnectFromHost();
 }

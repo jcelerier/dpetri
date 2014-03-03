@@ -18,6 +18,8 @@ class CommonLogic : public QObject
 		void localPoolChanged();
 		void clientPoolChanged(int id);
 
+		void sendLog(QString);
+
 
 	public:
 		ClientManager remoteClients;

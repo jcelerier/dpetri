@@ -5,8 +5,7 @@
 #include <sstream>
 #include <QtNetwork/QNetworkInterface>
 #include <osc/OscOutboundPacketStream.h>
-#include <osctools.h>
-
+#include "osc/oscmessagegenerator.h"
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
@@ -34,6 +33,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(&logic,			   SIGNAL(localPoolChanged()),
 			ui->centralwidget, SLOT(updateLocalPool()));
+
+	connect(&logic,			   SIGNAL(sendLog(QString)),
+			ui->centralwidget, SLOT(addLog(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -48,7 +50,6 @@ void MainWindow::openConnectionDialog()
 
 void MainWindow::newServerConnection(QHostAddress ip, quint16 port)
 {
-	qDebug() << ip << port;
 	// Connection via zeroconf
 	if(ip.toString() == QString("0.0.0.0"))
 		ip = QHostAddress::LocalHost;

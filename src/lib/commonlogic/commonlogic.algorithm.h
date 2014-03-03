@@ -31,7 +31,6 @@ void removeToken(std::string name)
 	}
 }
 
-
 // Fonction d'exécution de transition.
 void executeTransition(Transition* t)
 {
@@ -46,6 +45,8 @@ void executeTransition(Transition* t)
 	{
 		addToken(n->getName());
 	}
+
+	emit sendLog(QString("Transition effectuée: %1").arg(QString::fromStdString(t->getName())));
 }
 
 // Quand on reçoit un jeton sur une place, on en informe la machine gérant la transitions suivantes

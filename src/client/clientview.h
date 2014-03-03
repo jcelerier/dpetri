@@ -23,6 +23,7 @@ class ClientView : public QWidget
 		void give(QString);
 
 	public slots:
+		void addLog(QString);
 		void updateNet();
 		void updateServerPool();
 		void updateLocalPool();

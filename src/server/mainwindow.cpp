@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <sstream>
-#include <osctools.h>
+#include "osc/oscmessagegenerator.h"
 #include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -31,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(&logic,			   SIGNAL(clientPoolChanged(int)),
 			ui->centralwidget, SLOT(updateClientPool(int)));
+
+	connect(&logic,			   SIGNAL(sendLog(QString)),
+			ui->centralwidget, SLOT(addLog(QString)));
 
 	connect(&logic, SIGNAL(localNetChanged()),
 			ui->centralwidget, SLOT(updateNet()));

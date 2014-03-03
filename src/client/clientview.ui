@@ -26,6 +26,27 @@
    </item>
    <item>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Local Nodes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Pool Nodes</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QListWidget" name="poolNodeList">
+       <property name="selectionMode">
+        <enum>QAbstractItemView::MultiSelection</enum>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="1">
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
@@ -44,31 +65,24 @@
        </item>
       </layout>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Local Nodes</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Pool Nodes</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
       <widget class="QListWidget" name="localNodeList"/>
      </item>
-     <item row="1" column="2">
-      <widget class="QListWidget" name="poolNodeList">
-       <property name="selectionMode">
-        <enum>QAbstractItemView::MultiSelection</enum>
-       </property>
-      </widget>
-     </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Log</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="logger">
+     <property name="textInteractionFlags">
+      <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

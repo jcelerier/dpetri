@@ -23,7 +23,6 @@ class ClientManager
 									   const std::string& ip,
 									   const int port)
 		{
-			std::cerr << "Création d'un nouveau client" << std::endl;
 			// Chercher si un client a déjà le même nom
 			while(std::any_of(_clients.begin(),
 							  _clients.end(),

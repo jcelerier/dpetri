@@ -66,6 +66,12 @@ void ClientView::setClientLogic(ClientLogic* logic)
 	_logic = logic;
 }
 
+void ClientView::addLog(QString s)
+{
+	ui->logger->append("\n");
+	ui->logger->append(s);
+}
+
 void ClientView::updateNet()
 {
 	ui->petriNetView->updatePetriNet(_logic->localClient.model().net());

@@ -4,7 +4,7 @@
 #include "client/localclient.h"
 #include "clientmanager.h"
 
-#include "commonlogic.h"
+#include "commonlogic/commonlogic.h"
 
 class ClientView;
 class MainWindow;

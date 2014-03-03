@@ -1,11 +1,10 @@
 #pragma once
 #include<string>
 #include<fstream>
-#include "clock.h"
+#include "clock/clock.h"
 #include "gui/petrinetmodel.h"
-#include "nodepool.h"
-#include "client.h"
-#include "oscreceiver.h"
+#include "client/client.h"
+#include "osc/oscreceiver.h"
 
 class LocalClient : public Client
 {

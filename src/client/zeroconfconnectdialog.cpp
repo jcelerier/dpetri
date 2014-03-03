@@ -44,7 +44,6 @@ ZeroconfConnectDialog::ZeroconfConnectDialog(QWidget *parent)
 
 void ZeroconfConnectDialog::connectTo()
 {
-	qDebug() << "Ici, on CLIQUE SUR LE BOUTON";
 	blockSize = 0;
 	tcpSocket->abort();
 
@@ -73,9 +72,6 @@ void ZeroconfConnectDialog::connectToServer(const QHostInfo &hostInfo, int port)
 	const QList<QHostAddress> &addresses = hostInfo.addresses();
 	if (!addresses.isEmpty())
 		tcpSocket->connectToHost(addresses.first(), port);
-	qDebug() << "ZeroConf connect to: " << port;
-	qDebug() << "zeroconf port: " << tcpSocket->localPort() << tcpSocket->peerPort();
-
 }
 
 void ZeroconfConnectDialog::readConnectionData()

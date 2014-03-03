@@ -99,6 +99,23 @@
      </item>
     </layout>
    </item>
+   <item>
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Log</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="logger">
+     <property name="textInteractionFlags">
+      <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+     </property>
+     <property name="placeholderText">
+      <string/>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
