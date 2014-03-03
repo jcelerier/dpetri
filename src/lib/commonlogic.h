@@ -37,6 +37,9 @@ class CommonLogic : public QObject
 
 			localClient.receiver().addHandler("/pool/give",
 											  &CommonLogic::handleGive, this);
+
+			localClient.receiver().addHandler("/pool/infoTransfer",
+											  &CommonLogic::handleInfoTransfer, this);
 		}
 
 		void handleInfoTransfer(osc::ReceivedMessageArgumentStream args)
@@ -45,6 +48,11 @@ class CommonLogic : public QObject
 			args >> nodeId >> fromId >> toId;
 
 			remoteClients[fromId].give(nodeId, remoteClients[toId]);
+
+			if(fromId == 0 || toId == 0)
+			{
+				emit serverPoolChanged();
+			}
 		}
 
 		// /pool/infoTransfer node from to;
