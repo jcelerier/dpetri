@@ -22,7 +22,7 @@ void ClientView::updateServerPool()
 	auto& server = _logic->remoteClients[0];
 
 	ui->poolNodeList->clear();
-	for(OwnedNode& e : server.pool())
+	for(OwnedNode<PetriNet>& e : server.pool())
 	{
 		ui->poolNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}
@@ -32,7 +32,7 @@ void ClientView::updateServerPool()
 void ClientView::updateLocalPool()
 {
 	ui->localNodeList->clear();
-	for(const OwnedNode& e : _logic->localClient.pool())
+	for(const OwnedNode<PetriNet>& e : _logic->localClient.pool())
 	{
 		ui->localNodeList->addItem(QString::fromStdString(e.node->getName()));
 	}

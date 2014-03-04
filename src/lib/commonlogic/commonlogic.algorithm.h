@@ -1,3 +1,16 @@
+long int getTime()
+{
+	using namespace std::chrono;
+	return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+}
+
+void startAlgorithm()
+{
+	localClient.clock().start();
+	// Calculer l'heure de démarrage
+	_msCount = getTime();
+}
+
 void addToken(std::string name)
 {
 	auto p = localClient.model().net().findPlace(name);
@@ -8,7 +21,7 @@ void addToken(std::string name)
 	}
 
 	// chercher dans tous les pools clients
-	for(RemoteClient& c : remoteClients)
+	for(RemoteClient<PetriNetImpl>& c : remoteClients)
 	{
 		c.send("/petrinet/addToken", name.c_str());
 	}
@@ -25,7 +38,7 @@ void removeToken(std::string name)
 	}
 
 	// chercher dans tous les pools clients
-	for(RemoteClient& c : remoteClients)
+	for(RemoteClient<PetriNetImpl>& c : remoteClients)
 	{
 		c.send("/petrinet/removeToken", name.c_str());
 	}
@@ -46,7 +59,9 @@ void executeTransition(Transition* t)
 		addToken(n->getName());
 	}
 
-	emit sendLog(QString("Transition effectuée: %1").arg(QString::fromStdString(t->getName())));
+	emit sendLog(QString("Transition effectuée: %1. Retard : %2 ms.")
+				 .arg(QString::fromStdString(t->getName()))
+				 .arg(QString::number(getTime() - (_msCount + t->getCost()))));
 }
 
 // Quand on reçoit un jeton sur une place, on en informe la machine gérant la transitions suivantes
@@ -60,7 +75,7 @@ void updateRemotePlace(Place* place)
 	if(!localClient.pool().hasNode(t->getName()))
 	{
 		// chercher dans tous les pools clients
-		for(RemoteClient& c : remoteClients)
+		for(RemoteClient<PetriNetImpl>& c : remoteClients)
 		{
 			if(c.pool().hasNode(t->getName()))
 			{

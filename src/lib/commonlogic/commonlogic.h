@@ -5,13 +5,21 @@
 #include <QNetworkInterface>
 #include <QHostInfo>
 #include <functional>
+#include <chrono>
 
 #include "clientmanager.h"
 #include "client/localclient.h"
 
-class CommonLogic : public QObject
+class CommonLogicBase : public QObject
 {
 		Q_OBJECT
+	public:
+		CommonLogicBase(QObject* parent):
+			QObject(parent)
+		{
+		}
+
+		~CommonLogicBase() = default;
 	signals:
 		void serverPoolChanged();
 		void localNetChanged();
@@ -20,72 +28,62 @@ class CommonLogic : public QObject
 
 		void sendLog(QString);
 
+};
+
+template<class PetriNetImpl>
+class CommonLogic : public CommonLogicBase
+{
+	private:
+		long int _msCount;
 
 	public:
-		ClientManager remoteClients;
-		LocalClient localClient;
+		ClientManager<PetriNetImpl> remoteClients;
+		LocalClient<PetriNetImpl> localClient;
 
 		CommonLogic(int id, std::string name, int port, QObject* parent):
-			QObject(parent),
+			CommonLogicBase(parent),
 			localClient(id, // Est assigné par serveur
 						name,
 						getIp(QHostAddress::LocalHost).toStdString(),
 						port,
-						std::bind(&CommonLogic::localNetChanged, this),
-						std::bind(&CommonLogic::localPoolChanged, this))
+						std::bind(&CommonLogic<PetriNetImpl>::localNetChanged, this),
+						std::bind(&CommonLogic<PetriNetImpl>::localPoolChanged, this))
 		{
 			//// Réseau de Petri
 			localClient.receiver().addHandler("/petrinet/dump",
-											  &LocalClient::handlePetriNetReception, &localClient);
+											  &LocalClient<PetriNetImpl>::handlePetriNetReception, &localClient);
 			localClient.receiver().addHandler("/petrinet/addToken",
-											  &CommonLogic::handleAddToken, this);
+											  &CommonLogic<PetriNetImpl>::handleAddToken, this);
 			localClient.receiver().addHandler("/petrinet/removeToken",
-											  &CommonLogic::handleRemoveToken, this);
+											  &CommonLogic<PetriNetImpl>::handleRemoveToken, this);
 			localClient.receiver().addHandler("/petrinet/tokenInfo",
-											  &CommonLogic::handleTokenInfo, this);
+											  &CommonLogic<PetriNetImpl>::handleTokenInfo, this);
 			//// Pool
 			localClient.receiver().addHandler("/pool/dump",
-											  &CommonLogic::handlePoolDump, this);
+											  &CommonLogic<PetriNetImpl>::handlePoolDump, this);
 			localClient.receiver().addHandler("/pool/take",
-											  &CommonLogic::handleTake, this);
+											  &CommonLogic<PetriNetImpl>::handleTake, this);
 			localClient.receiver().addHandler("/pool/give",
-											  &CommonLogic::handleGive, this);
+											  &CommonLogic<PetriNetImpl>::handleGive, this);
 			localClient.receiver().addHandler("/pool/infoTransfer",
-											  &CommonLogic::handleInfoTransfer, this);
+											  &CommonLogic<PetriNetImpl>::handleInfoTransfer, this);
 			localClient.receiver().addHandler("/pool/ackTake",
-											  &CommonLogic::handleAckTake, this);
+											  &CommonLogic<PetriNetImpl>::handleAckTake, this);
 			localClient.receiver().addHandler("/pool/ackGive",
-											  &CommonLogic::handleAckGive, this);
+											  &CommonLogic<PetriNetImpl>::handleAckGive, this);
 
 			localClient.receiver().addHandler("/execution/start",
-											  &CommonLogic::handleStart, this);
+											  &CommonLogic<PetriNetImpl>::handleStart, this);
 
-			localClient.clock().addHandle(std::bind(&CommonLogic::checkTransitions, this, std::placeholders::_1));
-
+			localClient.clock().addHandle(std::bind(&CommonLogic<PetriNetImpl>::checkTransitions,
+													this,
+													std::placeholders::_1));
 		}
 
-		// Renvoie le client qui posède la node d'id // nom voulu
-		Client& getClientWithNode(std::string name)
-		{
-			if(localClient.pool().hasNode(name)) return localClient;
-
-			for(RemoteClient& c : remoteClients)
-			{
-				if(c.pool().hasNode(name)) return c;
-			}
-
-			throw "Node not found";
-		}
-
-		void startAlgorithm()
-		{
-			localClient.clock().start();
-		}
 
 #include "commonlogic.handlers.h"
 #include "commonlogic.algorithm.h"
 
-	public slots:
 		void takeNode(QString s)
 		{
 			// Faire un take vers le pool du client d'id 0 (le serveur)
@@ -129,7 +127,3 @@ class CommonLogic : public QObject
 
 		std::thread _runThread;
 };
-
-
-
-

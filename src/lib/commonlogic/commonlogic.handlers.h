@@ -62,7 +62,7 @@ void handleAckTake(osc::ReceivedMessageArgumentStream args)
 	if(id == 0) emit serverPoolChanged();
 	emit localPoolChanged();
 
-	for(RemoteClient& c : remoteClients)
+	for(RemoteClient<PetriNetImpl>& c : remoteClients)
 	{
 		if(c.id() != 0) // Pas le serveur (why not ?)
 			c.send("/pool/infoTransfer", nodeId, id, localClient.id());
@@ -83,7 +83,7 @@ void handleAckGive(osc::ReceivedMessageArgumentStream args)
 	if(id == 0) emit serverPoolChanged();
 	emit localPoolChanged();
 
-	for(RemoteClient& c : remoteClients)
+	for(RemoteClient<PetriNetImpl>& c : remoteClients)
 	{
 		if(c.id() != 0) // Pas le serveur (il le fait, changer?)
 			c.send("/pool/infoTransfer", nodeId, localClient.id(), id);

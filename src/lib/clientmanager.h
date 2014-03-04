@@ -4,21 +4,24 @@
 #include "client/remoteclient.h"
 #include "nodepool.h"
 
+template<class PetriNetImpl>
 class ClientManager
 {
-		friend std::vector<RemoteClient>::iterator begin(ClientManager& c);
-		friend std::vector<RemoteClient>::iterator end(ClientManager& c);
+		template<class T>
+		friend typename std::vector<RemoteClient<T>>::iterator begin(ClientManager<T>& c);
+		template<class T>
+		friend typename std::vector<RemoteClient<T>>::iterator end(ClientManager<T>& c);
 
 	private:
-		std::vector<RemoteClient> _clients;
+		std::vector<RemoteClient<PetriNetImpl>> _clients;
 		unsigned int _lastId = 0;
 
 	public:
 		ClientManager() = default;
-		ClientManager(const ClientManager& c) = delete;
-		ClientManager& operator=(const ClientManager& c) = delete;
+		ClientManager(const ClientManager<PetriNetImpl>& c) = delete;
+		ClientManager& operator=(const ClientManager<PetriNetImpl>& c) = delete;
 
-		RemoteClient& createConnection(const int id,
+		RemoteClient<PetriNetImpl>& createConnection(const int id,
 									   std::string hostname,
 									   const std::string& ip,
 									   const int port)
@@ -26,7 +29,7 @@ class ClientManager
 			// Chercher si un client a déjà le même nom
 			while(std::any_of(_clients.begin(),
 							  _clients.end(),
-							  [&hostname] (RemoteClient& c)
+							  [&hostname] (RemoteClient<PetriNetImpl>& c)
 				{ return hostname == c.name();}))
 			{
 				hostname.append("X");
@@ -41,7 +44,7 @@ class ClientManager
 			return _clients.back();
 		}
 
-		RemoteClient& createConnection(std::string hostname,
+		RemoteClient<PetriNetImpl>& createConnection(std::string hostname,
 									   const std::string& ip,
 									   const int port)
 		{
@@ -51,17 +54,17 @@ class ClientManager
 									port);
 		}
 
-		std::vector<RemoteClient>& clients()
+		std::vector<RemoteClient<PetriNetImpl>>& clients()
 		{
 			return _clients;
 		}
 
 		// Returns client by id
-		RemoteClient& operator[](int i)
+		RemoteClient<PetriNetImpl>& operator[](int i)
 		{
 			auto it = std::find_if(_clients.begin(),
 								   _clients.end(),
-								   [i] (RemoteClient& cl)
+								   [i] (RemoteClient<PetriNetImpl>& cl)
 			{ return cl.id() == i; });
 
 			if(it == _clients.end()) throw "Bad client";
@@ -69,11 +72,11 @@ class ClientManager
 			return *it;
 		}
 
-		RemoteClient& operator[](std::string& s)
+		RemoteClient<PetriNetImpl>& operator[](std::string& s)
 		{
 			auto it = std::find_if(_clients.begin(),
 								   _clients.end(),
-								   [&s] (RemoteClient& cl)
+								   [&s] (RemoteClient<PetriNetImpl>& cl)
 			{ return cl.name() == s; });
 
 			if(it == _clients.end()) throw "Bad client";
@@ -85,17 +88,19 @@ class ClientManager
 		{
 			return std::find_if(_clients.begin(),
 								_clients.end(),
-								[i] (RemoteClient& cl)
+								[i] (RemoteClient<PetriNetImpl>& cl)
 		 { return cl.id() == i; }) != _clients.end();
 		}
 };
 
-inline std::vector<RemoteClient>::iterator begin(ClientManager& c)
+template<class PetriNetImpl>
+typename std::vector<RemoteClient<PetriNetImpl>>::iterator begin(ClientManager<PetriNetImpl>& c)
 {
 	return c._clients.begin();
 }
 
-inline std::vector<RemoteClient>::iterator end(ClientManager& c)
+template<class PetriNetImpl>
+typename std::vector<RemoteClient<PetriNetImpl>>::iterator end(ClientManager<PetriNetImpl>& c)
 {
 	return c._clients.end();
 }

@@ -9,7 +9,7 @@ std::string getLastTimestampDigits()
 }
 
 ClientLogic::ClientLogic(MainWindow* parent):
-	CommonLogic(-1,
+	CommonLogic<pnapi::PetriNet>(-1,
 				QHostInfo::localHostName().toStdString() + getLastTimestampDigits(),
 				9877,
 				parent)
@@ -17,7 +17,7 @@ ClientLogic::ClientLogic(MainWindow* parent):
 
 	//// Connection
 	localClient.receiver().addHandler("/connect/set_id",
-									  &LocalClient::handleIdReception, &localClient);
+									  &LocalClient<pnapi::PetriNet>::handleIdReception, &localClient);
 	localClient.receiver().addHandler("/connect/discover",
 									  &ClientLogic::handleConnectDiscover, this);
 

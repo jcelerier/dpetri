@@ -34,7 +34,6 @@ class ClientView : public QWidget
 
 	private:
 		Ui::ClientView *ui;
-		LocalClient* _client;
 		ClientLogic* _logic;
 };
 

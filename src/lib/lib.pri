@@ -13,7 +13,7 @@ HEADERS += \
     $$PWD/gui/petrinetview.h \
     $$PWD/gui/petrinetmodel.h \
     $$PWD/osc/oscmessagegenerator.h \
-    $$PWD/petrinettools.h \
+    $$PWD/petrinetserializer.h \
     $$PWD/nodepool.h \
     $$PWD/client/remoteclient.h \
     $$PWD/ownednode.h \
@@ -22,4 +22,6 @@ HEADERS += \
     $$PWD/client/localclient.h \
     $$PWD/commonlogic/commonlogic.h \
     $$PWD/commonlogic/commonlogic.handlers.h \
-    $$PWD/commonlogic/commonlogic.algorithm.h
+    $$PWD/commonlogic/commonlogic.algorithm.h \
+    ../lib/simpleNet/simpleReader.h \
+    ../lib/simpleNet/simplePetriNet.h

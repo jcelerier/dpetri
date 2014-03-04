@@ -2,6 +2,7 @@
 #include <string>
 #include "../nodepool.h"
 
+template<class PetriNetImpl>
 class Client
 {
 	public:
@@ -52,7 +53,7 @@ class Client
 			to._localPool.take(this->_localPool, nodeId);
 		}
 
-		NodePool& pool()
+		NodePool<PetriNetImpl>& pool()
 		{
 			return _localPool;
 		}
@@ -63,5 +64,5 @@ class Client
 		const std::string _ip;
 		int _port;
 
-		NodePool _localPool;
+		NodePool<PetriNetImpl> _localPool;
 };

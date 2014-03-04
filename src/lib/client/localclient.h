@@ -6,11 +6,12 @@
 #include "client/client.h"
 #include "osc/oscreceiver.h"
 
-class LocalClient : public Client
+template<class PetriNetImpl>
+class LocalClient : public Client<PetriNetImpl>
 {
 		using SignalHandler = std::function<void()>;
 	private:
-		PetriNetModel _netModel;
+		PetriNetModel<PetriNetImpl> _netModel;
 		Clock _clock;
 
 		OscReceiver _receiver;
@@ -25,7 +26,7 @@ class LocalClient : public Client
 					const int port,
 					SignalHandler netChanged,
 					SignalHandler poolChanged):
-			Client(id, hostname, ip, -1),
+			Client<PetriNetImpl>(id, hostname, ip, -1),
 			_receiver(port),
 			_netChanged(netChanged),
 			_poolChanged(poolChanged)
@@ -43,7 +44,7 @@ class LocalClient : public Client
 		void loadNetAndPool(std::istream& s)
 		{
 			loadNet(s);
-			_localPool.reload(_netModel.net());
+			this->_localPool.reload(_netModel.net());
 			_poolChanged();
 		}
 
@@ -52,7 +53,7 @@ class LocalClient : public Client
 			return _clock;
 		}
 
-		PetriNetModel& model()
+		PetriNetModel<PetriNetImpl>& model()
 		{
 			return _netModel;
 		}
@@ -74,6 +75,6 @@ class LocalClient : public Client
 
 		void handleIdReception(osc::ReceivedMessageArgumentStream args)
 		{
-			args >> _id >> osc::EndMessage;
+			args >> this->_id >> osc::EndMessage;
 		}
 };

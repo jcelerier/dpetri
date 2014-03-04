@@ -8,7 +8,8 @@
 
 class ClientView;
 class MainWindow;
-class ClientLogic : public CommonLogic
+
+class ClientLogic : public CommonLogic<pnapi::PetriNet>
 {
 		Q_OBJECT
 		friend class ClientView;

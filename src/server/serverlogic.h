@@ -3,7 +3,7 @@
 
 class MasterView;
 
-class ServerLogic : public CommonLogic
+class ServerLogic : public CommonLogic<pnapi::PetriNet>
 {
 		Q_OBJECT
 		friend class MasterView;

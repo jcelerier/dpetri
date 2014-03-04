@@ -20,10 +20,10 @@ MainWindow::MainWindow(QWidget *parent) :
 			this,		   SLOT(newServerConnection(QHostAddress,quint16)));
 
 	connect(ui->centralwidget, SIGNAL(take(QString)),
-			&logic,			   SLOT(takeNode(QString)));
+			this,			   SLOT(takeNode(QString)));
 
 	connect(ui->centralwidget, SIGNAL(give(QString)),
-			&logic,			   SLOT(giveNode(QString)));
+			this,			   SLOT(giveNode(QString)));
 
 	connect(&logic,			   SIGNAL(localNetChanged()),
 			ui->centralwidget, SLOT(updateNet()));

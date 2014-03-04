@@ -1,26 +1,26 @@
 #pragma once
 #include "../osc/oscsender.h"
-#include <list>
 #include <string>
-#include <pnapi/pnapi.h>
 #include "../osc/oscmessagegenerator.h"
 #include "client.h"
-class RemoteClient : public Client
+
+template<class PetriNetImpl>
+class RemoteClient : public Client<PetriNetImpl>
 {
 	public:
 		RemoteClient(const int id,
 					 const std::string& hostname,
 					 const std::string& ip,
 					 const int port):
-			Client(id, hostname, ip, port),
+			Client<PetriNetImpl>(id, hostname, ip, port),
 			_sender(ip, port)
 		{
 		}
 
 		virtual ~RemoteClient() = default;
-		RemoteClient(RemoteClient&& c) = default;
-		RemoteClient(const RemoteClient& c) = delete;
-		RemoteClient& operator=(const RemoteClient& c) = delete;
+		RemoteClient(RemoteClient<PetriNetImpl>&& c) = default;
+		RemoteClient(const RemoteClient<PetriNetImpl>& c) = delete;
+		RemoteClient& operator=(const RemoteClient<PetriNetImpl>& c) = delete;
 
 		// Emission de données vers ce client
 		void send(const osc::OutboundPacketStream& s)
@@ -41,9 +41,9 @@ class RemoteClient : public Client
 
 		// Cette méthode est appelée par le serveur.
 		// Elle dit au client A (this) d'initier la connection avec le client B (c).
-		void initConnectionTo(Client& c)
+		void initConnectionTo(Client<PetriNetImpl>& c)
 		{
-			if(c.id() != _id)
+			if(c.id() != this->_id)
 			{
 				send("/connect/discover",
 					 c.name().c_str(),

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <pnapi/pnapi.h>
 #include "../nodepool.h"
-#include "../clock.h"
+#include "../clock/clock.h"
 
 using namespace pnapi;
 class ExecutionAlgorithmBase

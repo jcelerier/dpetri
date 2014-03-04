@@ -1,25 +1,26 @@
 #pragma once
-
-#include <pnapi/pnapi.h>
 #include <list>
 #include <sstream>
 
 #include <osc/OscReceivedElements.h>
 #include "osc/oscmessagegenerator.h"
 #include "ownednode.h"
-using namespace pnapi;
+template<class PetriNetImpl>
 class NodePool
 {
-		friend std::list<OwnedNode>::iterator begin(NodePool& p);
-		friend std::list<OwnedNode>::iterator end(NodePool &p);
+
+		template<class T>
+		friend typename std::list<OwnedNode<T>>::iterator begin(NodePool<T>& p);
+		template<class T>
+		friend typename std::list<OwnedNode<T>>::iterator end(NodePool<T> &p);
 
 	public:
 		NodePool() = default;
-		NodePool(NodePool&&) = default;
-		NodePool(const NodePool&) = delete;
-		NodePool& operator=(const NodePool&) = delete;
+		NodePool(NodePool<PetriNetImpl>&&) = default;
+		NodePool(const NodePool<PetriNetImpl>&) = delete;
+		NodePool& operator=(const NodePool<PetriNetImpl>&) = delete;
 
-		void reload(const PetriNet& net) // A appeler sur serveur
+		void reload(const PetriNetImpl& net) // A appeler sur serveur
 		{
 			unsigned int id = 0;
 			auto pn_nodes = net.getNodes();
@@ -40,7 +41,7 @@ class NodePool
 			return s.str();
 		}
 
-		void loadFromString(const PetriNet& net, const char* str)
+		void loadFromString(const PetriNetImpl& net, const char* str)
 		{
 			_nodes.clear();
 			std::istringstream s(str);
@@ -63,15 +64,15 @@ class NodePool
 		{
 			return std::find_if(std::begin(_nodes),
 								std::end(_nodes),
-								[&s] (OwnedNode& n)
+								[&s] (OwnedNode<PetriNetImpl>& n)
 		 { return n.node->getName() == s; }) != std::end(_nodes);
 		}
 
-		OwnedNode& operator[](std::string s)
+		OwnedNode<PetriNetImpl>& operator[](std::string s)
 		{
 			auto it = std::find_if(_nodes.begin(),
 								   _nodes.end(),
-								   [&s] (OwnedNode& n)
+								   [&s] (OwnedNode<PetriNetImpl>& n)
 			{ return n.node->getName() == s; });
 
 			if(it == _nodes.end()) throw "Bad node";
@@ -79,11 +80,11 @@ class NodePool
 			return *it;
 		}
 
-		OwnedNode& operator[](unsigned int i)
+		OwnedNode<PetriNetImpl>& operator[](unsigned int i)
 		{
 			auto it = std::find_if(_nodes.begin(),
 								   _nodes.end(),
-								   [i] (OwnedNode& n)
+								   [i] (OwnedNode<PetriNetImpl>& n)
 			{ return n.id == i; });
 
 			if(it == _nodes.end()) throw "Bad node";
@@ -91,11 +92,11 @@ class NodePool
 			return *it;
 		}
 
-		void take(NodePool& from, unsigned int nodeId)
+		void take(NodePool<PetriNetImpl>& from, unsigned int nodeId)
 		{
 			auto it = std::find_if(begin(from),
 								   end(from),
-								   [nodeId] (OwnedNode& n)
+								   [nodeId] (OwnedNode<PetriNetImpl>& n)
 			{ return n.id == nodeId; });
 
 			if(it == end(from)) return;
@@ -115,15 +116,17 @@ class NodePool
 		}
 
 	private:
-		std::list<OwnedNode> _nodes;
+		std::list<OwnedNode<PetriNetImpl>> _nodes;
 };
 
-inline std::list<OwnedNode>::iterator begin(NodePool& p)
+template<class PetriNetImpl>
+typename std::list<OwnedNode<PetriNetImpl>>::iterator begin(NodePool<PetriNetImpl>& p)
 {
 	return p._nodes.begin();
 }
 
-inline std::list<OwnedNode>::iterator end(NodePool& p)
+template<class PetriNetImpl>
+typename std::list<OwnedNode<PetriNetImpl>>::iterator end(NodePool<PetriNetImpl>& p)
 {
 	return p._nodes.end();
 }

@@ -5,7 +5,6 @@
 #include "clientlogic.h"
 #include <QHostAddress>
 #include "zeroconfconnectdialog.h"
-using namespace pnapi;
 
 namespace Ui {
 	class MainWindow;
@@ -23,14 +22,19 @@ class MainWindow : public QMainWindow
 	public slots:
 		void openConnectionDialog();
 		void newServerConnection(QHostAddress ip, quint16 port);
+		void takeNode(QString s)
+		{
+			logic.takeNode(s);
+		}
+		void giveNode(QString s)
+		{
+			logic.giveNode(s);
+		}
 
 	private:
 		Ui::MainWindow *ui;
-
 		ClientLogic logic;
-
 		ZeroconfConnectDialog* connectDialog;
-
 };
 
 #endif // MAINWINDOW_H

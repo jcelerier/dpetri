@@ -12,7 +12,7 @@ void ServerLogic::sendPlay()
 	// Chercher le client qui a l'état init
 	startAlgorithm();
 
-	for(RemoteClient& c : remoteClients)
+	for(RemoteClient<pnapi::PetriNet>& c : remoteClients)
 	{
 		c.send("/execution/start");
 	}
@@ -45,6 +45,6 @@ void ServerLogic::handleConnection(osc::ReceivedMessageArgumentStream args)
 	localClient.pool().dumpTo(0, newClient);
 
 	//// Envoi des informations des autres clients vers le nouveau client
-	for(RemoteClient& c : remoteClients)
+	for(RemoteClient<pnapi::PetriNet>& c : remoteClients)
 		newClient.initConnectionTo(c);
 }

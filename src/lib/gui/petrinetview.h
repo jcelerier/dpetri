@@ -1,9 +1,10 @@
 #pragma once
 
-#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QHBoxLayout>
 #include <QtSvg/QSvgWidget>
 #include "petrinetmodel.h"
-#include "../petrinettools.h"
+#include "../petrinetserializer.h"
+#include <QSpacerItem>
 
 class PetriNetView : public QWidget
 {
@@ -12,14 +13,14 @@ class PetriNetView : public QWidget
 		explicit PetriNetView(QWidget *parent = 0) :
 			QWidget(parent)
 		{
-			mainLayout->addWidget(viewer, 0, 0, 15, 15);
+			mainLayout->addWidget(viewer);
 			setLayout(mainLayout);
 		}
 
 	public slots:
 		void updatePetriNet(const PetriNet& net)
 		{
-			PetriNetSerializer ser(net);
+			PetriNetSerializer<PetriNet> ser(net);
 			const char * cstr = ser.toSVG();
 
 			QByteArray qdata(cstr, ser.size());
@@ -31,5 +32,5 @@ class PetriNetView : public QWidget
 
 	private:
 		QSvgWidget *viewer{new QSvgWidget};
-		QGridLayout *mainLayout{new QGridLayout};
+		QHBoxLayout *mainLayout{new QHBoxLayout};
 };

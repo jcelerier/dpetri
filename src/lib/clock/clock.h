@@ -62,7 +62,7 @@ class Clock
 	private:
 		std::atomic_llong _time{0};
 		bool _running{false};
-		const std::chrono::milliseconds _step{std::chrono::milliseconds(80)};
+		const std::chrono::milliseconds _step{std::chrono::milliseconds(20)};
 
 		std::vector<handler_type> _handles{};
 

@@ -2,14 +2,29 @@
 
 #include <pnapi/pnapi.h>
 using namespace pnapi;
+
+template <class PetriNetImpl>
 struct OwnedNode
 {
-		OwnedNode(Node* n , unsigned int i):
+		OwnedNode(typename PetriNetImpl::node_type* n , unsigned int i):
 			node(n),
 			id(i)
 		{
 		}
 
-	Node* node{nullptr};
+	typename PetriNetImpl::node_type* node{nullptr};
+	unsigned int id{0};
+};
+
+template <>
+struct OwnedNode<pnapi::PetriNet>
+{
+		OwnedNode(pnapi::Node* n , unsigned int i):
+			node(n),
+			id(i)
+		{
+		}
+
+	typename pnapi::Node* node{nullptr};
 	unsigned int id{0};
 };

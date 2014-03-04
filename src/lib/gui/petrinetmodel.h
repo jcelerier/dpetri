@@ -1,23 +1,24 @@
 #pragma once
 #include <pnapi/pnapi.h>
-#include "../petrinettools.h"
+#include "../petrinetserializer.h"
 #include "../client/remoteclient.h"
 
 using namespace pnapi;
+template<typename PetriNetImpl>
 class PetriNetModel
 {
 	private:
-		PetriNet _net;
+		PetriNetImpl _net;
 
 	public:
-		const PetriNet& net() const
+		const PetriNetImpl& net() const
 		{
 			return _net;
 		}
 
-		void dumpTo(RemoteClient& c)
+		void dumpTo(RemoteClient<PetriNetImpl>& c)
 		{
-			PetriNetSerializer ser(_net);
+			PetriNetSerializer<PetriNetImpl> ser(_net);
 			const char* dmp = ser.toFIONA();
 
 			c.send(osc::MessageGenerator(1024 + ser.size(),
