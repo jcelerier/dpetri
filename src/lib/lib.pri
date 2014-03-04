@@ -23,6 +23,12 @@ HEADERS += \
     $$PWD/commonlogic/commonlogic.h \
     $$PWD/commonlogic/commonlogic.handlers.h \
     $$PWD/commonlogic/commonlogic.algorithm.h \
-    ../lib/simpleNet/simpleReader.h \
-    ../lib/simpleNet/simplePetriNet.h \
-    ../lib/type_helper.h
+    $$PWD/simpleNet/simpleReader.h \
+    $$PWD/simpleNet/simplePetriNet.h \
+    $$PWD/type_helper.h
+
+SOURCE += \
+    $$PWD/simpleNet/simplePetriNet.cpp
+
+SOURCES += \
+    ../lib/simpleNet/simplePetriNet.cpp

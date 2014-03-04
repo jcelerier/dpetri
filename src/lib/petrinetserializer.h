@@ -35,8 +35,8 @@ class PetriNetSerializer
 					int token;
 					l >> placeName >> token;
 
-					net.createPlace(placeName);
-					net.setTokenCount(token);
+					auto& p = net.createPlace(placeName);
+					p.setTokenCount(token);
 				}
 				else if(type == "trans")
 				{

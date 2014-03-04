@@ -21,7 +21,7 @@ class CommonLogicBase : public QObject
 		{
 		}
 
-		~CommonLogicBase() = default;
+		virtual ~CommonLogicBase() = default;
 	signals:
 		void serverPoolChanged();
 		void localNetChanged();
@@ -29,6 +29,9 @@ class CommonLogicBase : public QObject
 		void clientPoolChanged(int id);
 
 		void sendLog(QString);
+
+	private:
+		void __donotuse() { } // Est utilisé pour la vtable
 
 };
 

@@ -1,6 +1,7 @@
 #include <QtGui/QGuiApplication>
 #include "qtquick2applicationviewer.h"
 
+#include <simpleNet/simplePetriNet.h>
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);

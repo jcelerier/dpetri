@@ -1,28 +1,56 @@
-#pragme once
+#pragma once
 #include <string>
 #include <vector>
 #include <algorithm>
 
+class SimplePetriNet;
 class SimpleNode
 {
 	protected:
 		std::string _name;
+		SimplePetriNet& _parent;
+
+		std::vector<SimpleNode*> _preset;
+		std::vector<SimpleNode*> _postset;
 
 	public:
-		SimpleNode(std::string name): _name(name)
+		SimpleNode(std::string name, SimplePetriNet& net):
+			_name(name),
+			_parent(net)
 		{
 
 		}
 
-		~SimpleNode() = default;
+		virtual ~SimpleNode() = default;
 
-		std::string name() const
+		std::string getName() const
 		{
 			return _name;
 		}
+
 		void setName(const std::string& name)
 		{
 			_name = name;
+		}
+
+		std::vector<SimpleNode*>& getPreset()
+		{
+			return _preset;
+		}
+
+		std::vector<SimpleNode*>& getPostset()
+		{
+			return _postset;
+		}
+
+		void addNodeToPreset(SimpleNode* n)
+		{
+			_preset.push_back(n);
+		}
+
+		void addNodeToPostset(SimpleNode* n)
+		{
+			_postset.push_back(n);
 		}
 };
 
@@ -49,13 +77,8 @@ class SimpleTransition : public SimpleNode
 		int _cost;
 
 	public:
-		SimpleTransition(std::string name, int cost):
-			SimpleNode(name),
-			_cost(cost)
-		{
-		}
-
-		int cost() const
+		using SimpleNode::SimpleNode;
+		int getCost() const
 		{
 			return _cost;
 		}
@@ -68,65 +91,144 @@ class SimpleTransition : public SimpleNode
 class SimpleArc
 {
 	private:
-		SimplePlace& _place;
-		SimpleTransition& _trans;
+		SimpleNode* _orig;
+		SimpleNode* _dest;
+
+		SimplePetriNet& _parent;
 
 	public:
-		SimpleArc(SimplePlace& place, SimpleTransition& trans):
-			_place(place),
-			_trans(trans)
+		SimpleArc(SimpleNode* orig, SimpleNode* dest, SimplePetriNet& parent):
+			_orig(orig),
+			_dest(dest),
+			_parent(parent)
 		{
+			orig->addNodeToPostset(dest);
+			dest->addNodeToPreset(orig);
 		}
+
+		SimpleNode& getSourceNode()
+		{
+			return *_orig;
+		}
+
+		SimpleNode& getTargetNode()
+		{
+			return *_dest;
+		}
+
+		SimplePlace& getPlace();
+
+		SimpleTransition& getTransition();
 };
 
 class SimplePetriNet
 {
-
 	private:
-		std::vector<SimplePlace> _places;
-		std::vector<SimpleTransition> _transitions;
-		std::vector<SimpleArcs> _arcs;
+		std::vector<SimplePlace*> _places;
+		std::vector<SimpleTransition*> _transitions;
+		std::vector<SimpleArc*> _arcs;
 
 	public:
-		void addPlace(std::string n)
+		using node_type = SimpleNode;
+		using transition_type = SimpleTransition;
+		using arc_type = SimpleArc;
+		using place_type = SimplePlace;
+		SimplePlace& createPlace(std::string n)
 		{
-			_places.emplace_back(n);
+			_places.emplace_back(new SimplePlace(n, *this));
+			return **(_places.end() - 1);
 		}
 
-		void addTrans(std::string n, int c)
+		SimpleTransition& createTransition(std::string n)
 		{
-			_transitions.emplace_back(n, c);
+			_transitions.emplace_back(new SimpleTransition(n, *this));
+			return **(_transitions.end() - 1);
 		}
 
-		void addArc(std::string orig, std::string dest)
+		SimpleArc& createArc(SimpleNode& orig, SimpleNode& dest)
 		{
-			bool placePosition = false; // False pour origin, true pour destination
-			auto place = std::find_if(std::begin(_places), std::end(_places), [orig] (SimplePlace& p)
-				{ return p.name() == orig;});
-			if(place == std::end(_places))
+			_arcs.emplace_back(new SimpleArc(&orig, &dest, *this));
+			return **(_arcs.end() - 1);
+		}
+
+		std::vector<SimplePlace*> getPlaces() const
+		{
+			return _places;
+		}
+
+		std::vector<SimpleTransition*> getTransitions() const
+		{
+			return _transitions;
+		}
+
+		std::vector<SimpleNode*> getNodes() const
+		{
+			std::vector<SimpleNode*> vec(_places.size() + _transitions.size());
+			for(SimpleNode* n : _places) vec.push_back(n);
+			for(SimpleNode* n : _transitions) vec.push_back(n);
+			return vec;
+		}
+
+		std::vector<SimpleArc*>& getArcs()
+		{
+			return _arcs;
+		}
+
+		SimplePlace* findPlace(std::string s) const
+		{
+			for(SimplePlace* p : _places)
 			{
-				place = std::find_if(std::begin(_places), std::end(_places), [dest] (SimplePlace& p)
-								{ return p.name() == dest;});
-				placePosition = true;
-				if(place == std::end(_places)) throw "Bad place";
+				if(p->getName() == s) return p;
 			}
 
-			bool transPosition = false; // False pour origin, true pour destination
-			auto trans = std::find_if(std::begin(_transitions), std::end(_transitions), [orig] (SimpleTransition& p)
-				{ return p.name() == orig;});
-			if(trans == std::end(_transitions))
+			return nullptr;
+		}
+		SimpleTransition* findTransition(std::string s) const
+		{
+			for(SimpleTransition* t : _transitions)
 			{
-				trans = std::find_if(std::begin(_transitions), std::end(_transitions), [dest] (SimpleTransition& p)
-								{ return p.name() == dest;});
-				transPosition = true;
-				if(trans == std::end(_transitions)) throw "Bad transition";
+				if(t->getName() == s) return t;
 			}
 
-			if(!placePosition && transPosition)
-				_arcs.emplace_back(*place, *trans);
-			else if(placePosition && !transPosition)
-				_arcs.emplace_back(*trans, *place);
-			else throw "Invalid request";
+			return nullptr;
+		}
+
+		SimpleNode* findNode(std::string s) const
+		{
+			SimpleNode* ptr = findPlace(s);
+			if(ptr) return ptr;
+
+			ptr = findTransition(s);
+			if(ptr) return ptr;
+
+			return nullptr;
 		}
 };
 
+
+
+inline SimplePlace& SimpleArc::getPlace()
+{
+	auto place = std::find_if(std::begin(_parent.getPlaces()),
+							  std::end(_parent.getPlaces()),
+							  [&] (SimplePlace* p)
+	{ return p->getName() == _orig->getName();});
+
+	if(place != std::end(_parent.getPlaces()))
+		return *dynamic_cast<SimplePlace*>(_orig);
+	else
+		return *dynamic_cast<SimplePlace*>(_dest);
+}
+
+inline SimpleTransition& SimpleArc::getTransition()
+{
+	auto trans = std::find_if(std::begin(_parent.getTransitions()),
+							  std::end(_parent.getTransitions()),
+							  [&] (SimpleTransition* p)
+	{ return p->getName() == _orig->getName();});
+
+	if(trans != std::end(_parent.getTransitions()))
+		return *dynamic_cast<SimpleTransition*>(_orig);
+	else
+		return *dynamic_cast<SimpleTransition*>(_dest);
+}

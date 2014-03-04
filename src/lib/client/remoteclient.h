@@ -18,9 +18,9 @@ class RemoteClient : public Client<PetriNetImpl>
 		}
 
 		virtual ~RemoteClient() = default;
-		RemoteClient(RemoteClient<PetriNetImpl>&& c) = default;
-		RemoteClient(const RemoteClient<PetriNetImpl>& c) = delete;
-		RemoteClient& operator=(const RemoteClient<PetriNetImpl>& c) = delete;
+		RemoteClient(RemoteClient<PetriNetImpl>&&) = default;
+		RemoteClient(const RemoteClient<PetriNetImpl>&) = delete;
+		RemoteClient& operator=(const RemoteClient<PetriNetImpl>&) = delete;
 
 		// Emission de données vers ce client
 		void send(const osc::OutboundPacketStream& s)

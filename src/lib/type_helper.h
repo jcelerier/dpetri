@@ -7,10 +7,9 @@ using place_type = pnapi::Place;
 using arc_type = pnapi::Arc;
 using node_type = pnapi::Node;
 #else
-template<typename T>
-using transition_type = T::transition_type;
-template<typename T>
-using place_type = T::place_type;
-template<typename T>
-using arc_type = T::arc_type;
+#include <simpleNet/simplePetriNet.h>
+using transition_type = SimplePetriNet::transition_type;
+using place_type = SimplePetriNet::place_type;
+using arc_type = SimplePetriNet::arc_type;
+using node_type = SimplePetriNet::node_type;
 #endif

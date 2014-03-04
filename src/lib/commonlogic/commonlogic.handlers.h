@@ -129,7 +129,7 @@ void handleRemoveToken(osc::ReceivedMessageArgumentStream args)
 void handleTokenInfo(osc::ReceivedMessageArgumentStream args)
 {
 	const char* pname;
-	int pcount;
+	osc::int32 pcount;
 
 	args >> pname >> pcount;
 

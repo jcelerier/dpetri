@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef USE_PNAPI
 #include <QtWidgets/QHBoxLayout>
 #include <QtSvg/QSvgWidget>
 #include "petrinetmodel.h"
@@ -35,3 +36,4 @@ class PetriNetView : public QWidget
 		QSvgWidget *viewer{new QSvgWidget};
 		QHBoxLayout *mainLayout{new QHBoxLayout};
 };
+#endif

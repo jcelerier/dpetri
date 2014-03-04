@@ -18,9 +18,9 @@ class Client
 		}
 
 		virtual ~Client() = default;
-		Client(Client&& c) = default;
-		Client(const Client& c) = delete;
-		Client& operator=(const Client& c) = delete;
+		Client(Client&&) = default;
+		Client(const Client&) = delete;
+		Client& operator=(const Client&) = delete;
 
 		void setId(int id)
 		{
@@ -59,7 +59,7 @@ class Client
 		}
 
 	protected:
-		int _id;
+		osc::int32 _id;
 		std::string _name;
 		const std::string _ip;
 		int _port;

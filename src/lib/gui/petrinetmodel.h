@@ -31,6 +31,7 @@ class PetriNetModel
 		}
 };
 
+#ifdef USE_PNAPI
 template<>
 class PetriNetModel<pnapi::PetriNet>
 {
@@ -64,3 +65,4 @@ class PetriNetModel<pnapi::PetriNet>
 			s >> pnapi::io::owfn >> _net;
 		}
 };
+#endif
