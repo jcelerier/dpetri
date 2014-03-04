@@ -5,14 +5,15 @@
 #include <osc/OscReceivedElements.h>
 #include "osc/oscmessagegenerator.h"
 #include "ownednode.h"
+
+#include "type_helper.h"
 template<class PetriNetImpl>
 class NodePool
 {
-
 		template<class T>
-		friend typename std::list<OwnedNode<T>>::iterator begin(NodePool<T>& p);
+		friend typename std::list<OwnedNode>::iterator begin(NodePool<T>& p);
 		template<class T>
-		friend typename std::list<OwnedNode<T>>::iterator end(NodePool<T> &p);
+		friend typename std::list<OwnedNode>::iterator end(NodePool<T> &p);
 
 	public:
 		NodePool() = default;
@@ -24,7 +25,7 @@ class NodePool
 		{
 			unsigned int id = 0;
 			auto pn_nodes = net.getNodes();
-			for(Node* node : pn_nodes)
+			for(node_type* node : pn_nodes)
 			{
 				_nodes.emplace_back(node, id++);
 			}
@@ -64,15 +65,15 @@ class NodePool
 		{
 			return std::find_if(std::begin(_nodes),
 								std::end(_nodes),
-								[&s] (OwnedNode<PetriNetImpl>& n)
+								[&s] (OwnedNode& n)
 		 { return n.node->getName() == s; }) != std::end(_nodes);
 		}
 
-		OwnedNode<PetriNetImpl>& operator[](std::string s)
+		OwnedNode& operator[](std::string s)
 		{
 			auto it = std::find_if(_nodes.begin(),
 								   _nodes.end(),
-								   [&s] (OwnedNode<PetriNetImpl>& n)
+								   [&s] (OwnedNode& n)
 			{ return n.node->getName() == s; });
 
 			if(it == _nodes.end()) throw "Bad node";
@@ -80,11 +81,11 @@ class NodePool
 			return *it;
 		}
 
-		OwnedNode<PetriNetImpl>& operator[](unsigned int i)
+		OwnedNode& operator[](unsigned int i)
 		{
 			auto it = std::find_if(_nodes.begin(),
 								   _nodes.end(),
-								   [i] (OwnedNode<PetriNetImpl>& n)
+								   [i] (OwnedNode& n)
 			{ return n.id == i; });
 
 			if(it == _nodes.end()) throw "Bad node";
@@ -96,7 +97,7 @@ class NodePool
 		{
 			auto it = std::find_if(begin(from),
 								   end(from),
-								   [nodeId] (OwnedNode<PetriNetImpl>& n)
+								   [nodeId] (OwnedNode& n)
 			{ return n.id == nodeId; });
 
 			if(it == end(from)) return;
@@ -116,17 +117,18 @@ class NodePool
 		}
 
 	private:
-		std::list<OwnedNode<PetriNetImpl>> _nodes;
+		std::list<OwnedNode> _nodes;
 };
 
 template<class PetriNetImpl>
-typename std::list<OwnedNode<PetriNetImpl>>::iterator begin(NodePool<PetriNetImpl>& p)
+typename std::list<OwnedNode>::iterator begin(NodePool<PetriNetImpl>& p)
 {
 	return p._nodes.begin();
 }
 
 template<class PetriNetImpl>
-typename std::list<OwnedNode<PetriNetImpl>>::iterator end(NodePool<PetriNetImpl>& p)
+typename std::list<OwnedNode>::iterator end(NodePool<PetriNetImpl>& p)
 {
 	return p._nodes.end();
 }
+

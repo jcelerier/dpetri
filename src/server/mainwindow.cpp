@@ -64,6 +64,6 @@ void MainWindow::loadNetAndPoolFromFile()
 void MainWindow::loadFromFile(QString s)
 {
 	std::ifstream f(s.toStdString());
-	logic.localClient.loadNetAndPool(f);
+	logic.localClient.loadNetAndPoolFromFIONA(f);
 }
 

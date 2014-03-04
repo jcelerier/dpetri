@@ -2,7 +2,7 @@
 #include <sstream>
 class SimpleReader
 {
-		void fromSimpleText(const char* t)
+		void fromSimpleText(const char* str)
 		{
 			std::istringstream s(str);
 			std::string line;

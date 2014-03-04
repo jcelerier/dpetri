@@ -5,6 +5,7 @@
 #include "petrinetmodel.h"
 #include "../petrinetserializer.h"
 #include <QSpacerItem>
+#include <pnapi/pnapi.h>
 
 class PetriNetView : public QWidget
 {
@@ -18,9 +19,9 @@ class PetriNetView : public QWidget
 		}
 
 	public slots:
-		void updatePetriNet(const PetriNet& net)
+		void updatePetriNet(const pnapi::PetriNet& net)
 		{
-			PetriNetSerializer<PetriNet> ser(net);
+			PetriNetSerializer<pnapi::PetriNet> ser(net);
 			const char * cstr = ser.toSVG();
 
 			QByteArray qdata(cstr, ser.size());

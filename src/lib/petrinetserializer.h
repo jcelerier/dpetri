@@ -2,7 +2,7 @@
 #include <string>
 #include <sstream>
 #include <functional>
-
+#include "type_helper.h"
 
 template<typename PetriNetImpl>
 class PetriNetSerializer
@@ -18,18 +18,58 @@ class PetriNetSerializer
 			delete[] serializedData;
 		}
 
+		static void fromSimpleText(const char* text, PetriNetImpl& net)
+		{
+			std::istringstream s(text);
+			std::string line;
+
+			while(std::getline(s, line))
+			{
+				std::istringstream l(line);
+
+				std::string type;
+				l >> type;
+				if(type == "place")
+				{
+					std::string placeName;
+					int token;
+					l >> placeName >> token;
+
+					net.createPlace(placeName);
+					net.setTokenCount(token);
+				}
+				else if(type == "trans")
+				{
+					std::string transName;
+					int cost;
+					l >> transName >> cost;
+
+					auto& t = net.createTransition(transName);
+					t.setCost(cost);
+				}
+				else if(type == "arc")
+				{
+					std::string orig, dest;
+					l >> orig >> dest;
+					auto norig = net.findNode(orig);
+					auto ndest = net.findNode(dest);
+					net.createArc(*norig, *ndest);
+				}
+			}
+		}
+
 		const char* toSimpleText()
 		{
 			std::stringstream spnet;
-			for(typename PetriNetImpl::place_type* p : _net.getPlaces())
+			for(place_type* p : _net.getPlaces())
 			{
-				spnet << "place " << p->getName() << std::endl;
+				spnet << "place " << p->getName() << p->getTokenCount() << std::endl;
 			}
-			for(typename PetriNetImpl::transition_type* t : _net.getTransitions())
+			for(transition_type* t : _net.getTransitions())
 			{
 				spnet << "trans " << t->getName() << " " << t->getCost() << std::endl;
 			}
-			for(typename PetriNetImpl::arc_type* a : _net.getArcs())
+			for(arc_type* a : _net.getArcs())
 			{
 				spnet << "arc " << a->getSourceNode().getName() << " " << a->getTargetNode().getName() << std::endl;
 			}
@@ -63,7 +103,7 @@ class PetriNetSerializer
 };
 
 
-
+#ifdef USE_PNAPI
 #include <pnapi/pnapi.h>
 #include <graphviz/gvc.h>
 template<>
@@ -104,18 +144,59 @@ class PetriNetSerializer<pnapi::PetriNet>
 			return toChar(spnet);
 		}
 
+
+		static void fromSimpleText(const char* text, pnapi::PetriNet& net)
+		{
+			std::istringstream s(text);
+			std::string line;
+
+			while(std::getline(s, line))
+			{
+				std::istringstream l(line);
+
+				std::string type;
+				l >> type;
+				if(type == "place")
+				{
+					std::string placeName;
+					int token;
+					l >> placeName >> token;
+
+					auto& p = net.createPlace(placeName);
+					p.setTokenCount(token);
+				}
+				else if(type == "trans")
+				{
+					std::string transName;
+					int cost;
+					l >> transName >> cost;
+
+					auto& t = net.createTransition(transName);
+					t.setCost(cost);
+				}
+				else if(type == "arc")
+				{
+					std::string orig, dest;
+					l >> orig >> dest;
+					auto norig = net.findNode(orig);
+					auto ndest = net.findNode(dest);
+					net.createArc(*norig, *ndest);
+				}
+			}
+		}
+
 		const char* toSimpleText()
 		{
 			std::stringstream spnet;
-			for(pnapi::Place* p : _net.getPlaces())
+			for(place_type* p : _net.getPlaces())
 			{
-				spnet << "place " << p->getName() << std::endl;
+				spnet << "place " << p->getName() << " " << p->getTokenCount() << std::endl;
 			}
-			for(pnapi::Transition* t : _net.getTransitions())
+			for(transition_type* t : _net.getTransitions())
 			{
 				spnet << "trans " << t->getName() << " " << t->getCost() << std::endl;
 			}
-			for(pnapi::Arc* a : _net.getArcs())
+			for(arc_type* a : _net.getArcs())
 			{
 				spnet << "arc " << a->getSourceNode().getName() << " " << a->getTargetNode().getName() << std::endl;
 			}
@@ -168,3 +249,4 @@ class PetriNetSerializer<pnapi::PetriNet>
 		unsigned int _size = 0;
 		char * serializedData = nullptr;
 };
+#endif

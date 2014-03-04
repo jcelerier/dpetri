@@ -10,6 +10,8 @@
 #include "clientmanager.h"
 #include "client/localclient.h"
 
+#include "type_helper.h"
+
 class CommonLogicBase : public QObject
 {
 		Q_OBJECT

@@ -24,4 +24,5 @@ HEADERS += \
     $$PWD/commonlogic/commonlogic.handlers.h \
     $$PWD/commonlogic/commonlogic.algorithm.h \
     ../lib/simpleNet/simpleReader.h \
-    ../lib/simpleNet/simplePetriNet.h
+    ../lib/simpleNet/simplePetriNet.h \
+    ../lib/type_helper.h

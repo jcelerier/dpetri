@@ -1,6 +1,7 @@
 #pragma once
 #include<string>
 #include<fstream>
+#include <iostream>
 #include "clock/clock.h"
 #include "gui/petrinetmodel.h"
 #include "client/client.h"
@@ -35,15 +36,16 @@ class LocalClient : public Client<PetriNetImpl>
 			_receiver.run();
 		}
 
-		void loadNet(std::istream& s)
+		void loadNet(const char* s)
 		{
 			_netModel.reload(s);
 			_netChanged();
 		}
 
-		void loadNetAndPool(std::istream& s)
+		void loadNetAndPoolFromFIONA(std::istream& s)
 		{
-			loadNet(s);
+			_netModel.reloadFromFIONA(s);
+			_netChanged();
 			this->_localPool.reload(_netModel.net());
 			_poolChanged();
 		}
@@ -68,9 +70,7 @@ class LocalClient : public Client<PetriNetImpl>
 			osc::Blob b;
 			args >> b >> osc::EndMessage;
 
-			std::stringstream s;
-			s << static_cast<const char*>(b.data);
-			loadNet(s);
+			loadNet(static_cast<const char*>(b.data));
 		}
 
 		void handleIdReception(osc::ReceivedMessageArgumentStream args)

@@ -17,7 +17,7 @@ HEADERS += server.h \
     mainwindow.h \
     serverlogic.h
 
-
+DEFINES += USE_PNAPI
 LIBS += -lpnapi -loscpack -ldns_sd -lgvc -lcgraph
 
 unix:!macx: LIBS += -L$$PWD/../../../../../git/oscpack/build/ -loscpack

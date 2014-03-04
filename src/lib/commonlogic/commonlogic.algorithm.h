@@ -45,16 +45,16 @@ void removeToken(std::string name)
 }
 
 // Fonction d'exécution de transition.
-void executeTransition(Transition* t)
+void executeTransition(transition_type* t)
 {
 	// 1. Vérifier qu'antécédents ont jetons est fait avant
-	for(Node* n : t->getPreset())
+	for(node_type* n : t->getPreset())
 	{
 		removeToken(n->getName());
 	}
 
 	// 2. Envoyer nouveau jeton aux suivants
-	for(Node* n : t->getPostset())
+	for(node_type* n : t->getPostset())
 	{
 		addToken(n->getName());
 	}
@@ -67,9 +67,9 @@ void executeTransition(Transition* t)
 // Quand on reçoit un jeton sur une place, on en informe la machine gérant la transitions suivantes
 // pour qu'elles puissent chercher.
 // Ou alors les messages de transmission de jeton sont transmis à tout le monde ?
-void updateRemotePlace(Place* place)
+void updateRemotePlace(place_type* place)
 {
-	auto t = dynamic_cast<Transition*>(*place->getPostset().begin());
+	auto t = dynamic_cast<transition_type*>(*place->getPostset().begin());
 
 	// Trouver qui possède cette transition (ou broadcast ?)
 	if(!localClient.pool().hasNode(t->getName()))
@@ -92,13 +92,13 @@ void checkTransitions(Clock::time_type time)
 	// Attendre ticks d'horloge
 	// à chaque tick, regarder si on peut exécuter une des transitions
 	// que l'on possède
-	for(Transition* t : localClient.model().net().getTransitions())
+	for(transition_type* t : localClient.model().net().getTransitions())
 	{
 		if(localClient.pool().hasNode(t->getName()))
 		{
 			if(std::all_of(t->getPreset().begin(),
 						   t->getPreset().end(),
-						   [] (Node* n)	{return dynamic_cast<Place*>(n)->getTokenCount() > 0;})
+						   [] (node_type* n)	{return dynamic_cast<place_type*>(n)->getTokenCount() > 0;})
 					&& time > t->getCost())
 			{
 				executeTransition(t);
