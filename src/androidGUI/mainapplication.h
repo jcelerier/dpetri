@@ -1,18 +1,23 @@
 #ifndef MAINAPPLICATION_H
 #define MAINAPPLICATION_H
 
-#include <QQuickItem>
+#include <QMainWindow>
+#include "androidclientlogic.h"
+namespace Ui {
+	class MainApplication;
+}
 
-class MainApplication : public QQuickItem
+class MainApplication : public QMainWindow
 {
 		Q_OBJECT
+
 	public:
-		explicit MainApplication(QQuickItem *parent = 0);
+		explicit MainApplication(QWidget *parent = 0);
+		~MainApplication();
 
-	signals:
-
-	public slots:
-
+	private:
+		Ui::MainApplication *ui;
+		AndroidClientLogic logic;
 };
 
 #endif // MAINAPPLICATION_H

@@ -16,8 +16,8 @@ class CommonLogicBase : public QObject
 {
 		Q_OBJECT
 	public:
-		CommonLogicBase(QObject* parent):
-			QObject(parent)
+		CommonLogicBase(QObject* pparent):
+			QObject(pparent)
 		{
 		}
 
@@ -45,12 +45,12 @@ class CommonLogic : public CommonLogicBase
 		ClientManager<PetriNetImpl> remoteClients;
 		LocalClient<PetriNetImpl> localClient;
 
-		CommonLogic(int id, std::string name, int port, QObject* parent):
+		CommonLogic(int id, std::string name, int pport, QObject* parent):
 			CommonLogicBase(parent),
 			localClient(id, // Est assigné par serveur
 						name,
-						getIp(QHostAddress::LocalHost).toStdString(),
-						port,
+						"0.0.0.0", // à la connection
+						pport,
 						std::bind(&CommonLogic<PetriNetImpl>::localNetChanged, this),
 						std::bind(&CommonLogic<PetriNetImpl>::localPoolChanged, this))
 		{
@@ -112,23 +112,5 @@ class CommonLogic : public CommonLogicBase
 		}
 
 	private:
-		QString getIp(QHostAddress serverIP)
-		{
-			// Cas local
-			if(serverIP == QHostAddress::LocalHost) return "127.0.0.1";
-
-			// Cas distant
-			QList<QHostAddress> list = QNetworkInterface::allAddresses();
-
-			for(int nIter=0; nIter<list.count(); nIter++)
-			{
-				if(!list[nIter].isLoopback())
-					if (list[nIter].protocol() == QAbstractSocket::IPv4Protocol )
-						return list[nIter].toString();
-			}
-
-			return "0.0.0.0";
-		}
-
 		std::thread _runThread;
 };

@@ -25,7 +25,6 @@ class MainWindow : public QMainWindow
 		// OscPack handlers
 		void handleConnection(osc::ReceivedMessageArgumentStream m);
 
-
 	public slots:
 		void loadNetAndPoolFromFile();
 

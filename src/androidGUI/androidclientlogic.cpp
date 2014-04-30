@@ -1,5 +1,5 @@
 #include "androidclientlogic.h"
-#include "mainapplication.h"
+#include "mainwindow.h"
 #include <chrono>
 #include <string>
 std::string getLastTimestampDigits()
@@ -9,7 +9,7 @@ std::string getLastTimestampDigits()
 	return s.str().substr(s.str().size() - 4);
 }
 
-AndroidClientLogic::AndroidClientLogic(MainApplication* parent):
+AndroidClientLogic::AndroidClientLogic(MainWindow* parent):
 	CommonLogic<SimplePetriNet>(-1,
 				QHostInfo::localHostName().toStdString() + getLastTimestampDigits(),
 				9877,
@@ -24,6 +24,10 @@ AndroidClientLogic::AndroidClientLogic(MainApplication* parent):
 
 }
 
+void AndroidClientLogic::setLocalAddress(QHostAddress ip)
+{
+	localClient.setIp(ip.toString().toStdString());
+}
 
 void AndroidClientLogic::handleConnectDiscover(osc::ReceivedMessageArgumentStream args)
 {

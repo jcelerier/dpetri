@@ -1,6 +1,15 @@
 #include "mainapplication.h"
+#include "ui_mainapplication.h"
 
-MainApplication::MainApplication(QQuickItem *parent) :
-	QQuickItem(parent)
+MainApplication::MainApplication(QWidget *parent) :
+	QMainWindow(parent),
+	ui(new Ui::MainApplication),
+	logic(this)
 {
+	ui->setupUi(this);
+}
+
+MainApplication::~MainApplication()
+{
+	delete ui;
 }

@@ -9,6 +9,7 @@ void startAlgorithm()
 	localClient.clock().start();
 	// Calculer l'heure de démarrage
 	_msCount = getTime();
+	emit sendLog("Démarrage à : " + QString::number(_msCount));
 }
 
 void addToken(std::string name)

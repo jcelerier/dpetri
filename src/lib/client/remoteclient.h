@@ -45,6 +45,7 @@ class RemoteClient : public Client<PetriNetImpl>
 		{
 			if(c.id() != this->_id)
 			{
+				qDebug() << c.ip().c_str() << c.port();
 				send("/connect/discover",
 					 c.name().c_str(),
 					 c.id(),

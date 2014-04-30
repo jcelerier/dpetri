@@ -21,6 +21,8 @@ class ClientLogic : public CommonLogic<pnapi::PetriNet>
 		void handleConnectDiscover(osc::ReceivedMessageArgumentStream args);
 
 
+	public slots:
+		void setLocalAddress(QHostAddress ip);
 };
 
 #endif // CLIENTLOGIC_H

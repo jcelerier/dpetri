@@ -1,14 +1,11 @@
-#include <QtGui/QGuiApplication>
-#include "qtquick2applicationviewer.h"
+#include <QApplication>
+#include "mainwindow.h"
 
-#include <simpleNet/simplePetriNet.h>
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
+	QApplication app(argc, argv);
 
-    QtQuick2ApplicationViewer viewer;
-    viewer.setMainQmlFile(QStringLiteral("qml/androidGUI/main.qml"));
-    viewer.showExpanded();
-
+	MainWindow m;
+	m.show();
     return app.exec();
 }

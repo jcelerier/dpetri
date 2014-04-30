@@ -23,6 +23,10 @@ ClientLogic::ClientLogic(MainWindow* parent):
 
 }
 
+void ClientLogic::setLocalAddress(QHostAddress ip)
+{
+	localClient.setIp(ip.toString().toStdString());
+}
 
 void ClientLogic::handleConnectDiscover(osc::ReceivedMessageArgumentStream args)
 {

@@ -44,7 +44,6 @@ public:
 	ZeroconfConnectDialog(QWidget *parent = 0);
 
 	signals:
-	void setLocalAddress(QHostAddress);
 	void connectedTo(QHostAddress, quint16);
 
 private slots:

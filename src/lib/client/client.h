@@ -42,6 +42,11 @@ class Client
 			return _ip;
 		}
 
+		void setIp(std::string ip)
+		{
+			_ip = ip;
+		}
+
 		int port() const
 		{
 			return _port;
@@ -61,7 +66,7 @@ class Client
 	protected:
 		osc::int32 _id;
 		std::string _name;
-		const std::string _ip;
+		std::string _ip;
 		int _port;
 
 		NodePool<PetriNetImpl> _localPool;

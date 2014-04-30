@@ -1,3 +1,5 @@
+TEMPLATE=subdirs
+
 HEADERS += \
     $$PWD/clock/clock.h \
     $$PWD/clock/clockclient.h \

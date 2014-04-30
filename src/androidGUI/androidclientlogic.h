@@ -6,15 +6,16 @@
 
 #include "simpleNet/simplePetriNet.h"
 
-class MainApplication;
+class MainWindow;
 class AndroidClientLogic : public CommonLogic<SimplePetriNet>
 {
 		Q_OBJECT
 	public:
-		AndroidClientLogic(MainApplication* parent);
+		AndroidClientLogic(MainWindow* parent);
 		virtual ~AndroidClientLogic() { }
 
 		void handleConnectDiscover(osc::ReceivedMessageArgumentStream args);
 
-
+	public slots:
+		void setLocalAddress(QHostAddress ip);
 };

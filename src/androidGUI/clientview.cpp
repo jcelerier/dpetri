@@ -4,7 +4,6 @@
 #include <mainwindow.h>
 
 #include <QDebug>
-#include <pnapi/pnapi.h>
 #include <QTime>
 ClientView::ClientView(QWidget* parent) :
 	QWidget(parent),
@@ -19,9 +18,10 @@ ClientView::ClientView(QWidget* parent) :
 
 void ClientView::updateServerPool()
 {
+
 	// Chercher les nodes du serveur
 	auto& server = _logic->remoteClients[0];
-
+	qDebug() << server.pool().size();
 	ui->poolNodeList->clear();
 	for(OwnedNode& e : server.pool())
 	{
@@ -62,7 +62,7 @@ ClientView::~ClientView()
 	delete ui;
 }
 
-void ClientView::setClientLogic(ClientLogic* logic)
+void ClientView::setClientLogic(AndroidClientLogic* logic)
 {
 	_logic = logic;
 }
@@ -71,9 +71,4 @@ void ClientView::addLog(QString s)
 {
 	auto t = QTime::currentTime();
 	ui->logger->append("[" + t.toString() + ":" + QString::number(t.msec()) + "] " + s);
-}
-
-void ClientView::updateNet()
-{
-	ui->petriNetView->updatePetriNet(_logic->localClient.model().net());
 }

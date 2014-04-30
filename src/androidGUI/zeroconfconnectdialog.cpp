@@ -68,7 +68,6 @@ void ZeroconfConnectDialog::connectTo()
 
 void ZeroconfConnectDialog::connectToServer(const QHostInfo &hostInfo, int port)
 {
-
 	const QList<QHostAddress> &addresses = hostInfo.addresses();
 	if (!addresses.isEmpty())
 		tcpSocket->connectToHost(addresses.first(), port);
@@ -93,7 +92,6 @@ void ZeroconfConnectDialog::readConnectionData()
 	quint16 port;
 	QHostAddress ip;
 	in >> ip >> port;
-	emit setLocalAddress(tcpSocket->localAddress());
 	emit connectedTo(ip, port);
 }
 

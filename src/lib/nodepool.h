@@ -116,6 +116,11 @@ class NodePool
 										 osc::Blob(str2.c_str(), str2.size())));
 		}
 
+		int size() const
+		{
+			return _nodes.size();
+		}
+
 	private:
 		std::list<OwnedNode> _nodes;
 };
