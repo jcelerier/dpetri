@@ -169,7 +169,7 @@ class SimplePetriNet
 			return vec;
 		}
 
-		std::vector<SimpleArc*>& getArcs()
+		const std::vector<SimpleArc*>& getArcs() const
 		{
 			return _arcs;
 		}

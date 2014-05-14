@@ -26,12 +26,12 @@ FORMS += \
     clientview.ui \
     ipconnectdialog.ui
 
-android-g++ {
+android-g++|android-clang {
 unix:!macx: LIBS += -L$$PWD/../../../androidBuilds/oscpack/libs/armeabi-v7a/ -loscpack
 
 INCLUDEPATH += $$PWD/../../../androidBuilds/oscpack/src
 DEPENDPATH += $$PWD/../../../androidBuilds/oscpack/src
-
+message($$PWD/../../../androidBuilds/oscpack/src)
 unix:!macx: PRE_TARGETDEPS += $$PWD/../../../androidBuilds/oscpack/libs/armeabi-v7a/liboscpack.a
 
 unix:!macx: LIBS += -L$$PWD/../../../androidBuilds/mdnsresponder/libs/armeabi/ -lmdnssd

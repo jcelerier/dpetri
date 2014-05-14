@@ -63,7 +63,7 @@ class PetriNetSerializer
 			std::stringstream spnet;
 			for(place_type* p : _net.getPlaces())
 			{
-				spnet << "place " << p->getName() << p->getTokenCount() << std::endl;
+				spnet << "place " << p->getName() << " " << p->getTokenCount() << std::endl;
 			}
 			for(transition_type* t : _net.getTransitions())
 			{
@@ -206,7 +206,7 @@ class PetriNetSerializer<pnapi::PetriNet>
 
 		const char* toSVG()
 		{
-			toDOT();
+			std::cout << toDOT();
 
 			GVC_t* gvc = gvContext();
 			Agraph_t* G = agmemread(serializedData);
