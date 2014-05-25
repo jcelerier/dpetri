@@ -206,7 +206,7 @@ class PetriNetSerializer<pnapi::PetriNet>
 
 		const char* toSVG()
 		{
-			std::cout << toDOT();
+            /*std::cout << */toDOT();
 
 			GVC_t* gvc = gvContext();
 			Agraph_t* G = agmemread(serializedData);

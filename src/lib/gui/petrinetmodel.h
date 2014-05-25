@@ -48,7 +48,7 @@ class PetriNetModel<pnapi::PetriNet>
 		{
 			PetriNetSerializer<pnapi::PetriNet> ser(_net);
 			const char* dmp = ser.toSimpleText();
-			std::cerr << "Sent this: " << dmp;
+//			std::cerr << "Sent this: " << dmp;
 
 			c.send(osc::MessageGenerator(1024 + ser.size(),
 										 "/petrinet/dump",

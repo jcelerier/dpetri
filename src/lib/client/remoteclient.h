@@ -54,7 +54,29 @@ class RemoteClient : public Client<PetriNetImpl>
 			}
 		}
 
+        void setPingTimestamp(long ts)
+        {
+            _pingTimestamp = ts;
+        }
+
+        long getPingTimestamp()
+        {
+            return _pingTimestamp;
+        }
+
+        void setLatency(long lat)
+        {
+            _estLatency = lat;
+        }
+
+        long latency()
+        {
+            return _estLatency;
+        }
+
 	private:
 		OscSender _sender;
+        long _pingTimestamp;
+        long _estLatency;
 };
 

@@ -8,8 +8,9 @@ void startAlgorithm()
 {
 	localClient.clock().start();
 	// Calculer l'heure de démarrage
-	_msCount = getTime();
-	emit sendLog("Démarrage à : " + QString::number(_msCount));
+    _startMs = getTime();
+
+    emit sendLog("Démarrage à : " + QString::number(_startMs));
 }
 
 void addToken(std::string name)
@@ -60,9 +61,13 @@ void executeTransition(transition_type* t)
 		addToken(n->getName());
 	}
 
-	emit sendLog(QString("Transition effectuée: %1. Retard : %2 ms.")
+    long zeTime = getTime();
+    emit sendLog(QString("[Vraie : %5]Transition effectuée: %1. Ms écoulées : %3. Temps idéal : %4. Retard : %2 ms.")
 				 .arg(QString::fromStdString(t->getName()))
-				 .arg(QString::number(getTime() - (_msCount + t->getCost()))));
+                 .arg(QString::number((zeTime - _startMs) - t->getCost()))
+                 .arg(QString::number(zeTime - _startMs))
+                 .arg(QString::number(t->getCost()))
+                 .arg(QString::number(zeTime)));
 }
 
 // Quand on reçoit un jeton sur une place, on en informe la machine gérant la transitions suivantes
@@ -100,7 +105,7 @@ void checkTransitions(Clock::time_type time)
 			if(std::all_of(t->getPreset().begin(),
 						   t->getPreset().end(),
 						   [] (node_type* n)	{return dynamic_cast<place_type*>(n)->getTokenCount() > 0;})
-					&& time > t->getCost())
+                    && time >= t->getCost())
 			{
 				executeTransition(t);
 			}

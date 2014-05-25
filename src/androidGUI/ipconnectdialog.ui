@@ -35,7 +35,7 @@
      <item row="2" column="1">
       <widget class="QLineEdit" name="ip">
        <property name="text">
-        <string>147.210.110.77</string>
+        <string>192.168.43.155</string>
        </property>
       </widget>
      </item>

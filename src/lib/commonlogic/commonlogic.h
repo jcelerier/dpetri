@@ -39,7 +39,7 @@ template<class PetriNetImpl>
 class CommonLogic : public CommonLogicBase
 {
 	private:
-		long int _msCount;
+        long int _startMs;
 
 	public:
 		ClientManager<PetriNetImpl> remoteClients;
@@ -77,6 +77,11 @@ class CommonLogic : public CommonLogicBase
 			localClient.receiver().addHandler("/pool/ackGive",
 											  &CommonLogic<PetriNetImpl>::handleAckGive, this);
 
+            localClient.receiver().addHandler("/ping",
+                                              &CommonLogic<PetriNetImpl>::handlePing, this);
+            localClient.receiver().addHandler("/pong",
+                                              &CommonLogic<PetriNetImpl>::handlePong, this);
+
 			localClient.receiver().addHandler("/execution/start",
 											  &CommonLogic<PetriNetImpl>::handleStart, this);
 
@@ -110,7 +115,4 @@ class CommonLogic : public CommonLogicBase
 						(osc::int32) localClient.id(),
 						(osc::int32) node.id);
 		}
-
-	private:
-		std::thread _runThread;
 };

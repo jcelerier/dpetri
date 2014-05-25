@@ -5,6 +5,7 @@
 #include <iostream>
 #include <functional>
 #include <vector>
+#include <unistd.h>
 
 #define DEBUG(x) std::cerr << #x << ": " << ( x ) << std::endl;
 
@@ -39,12 +40,26 @@ class Clock
 
 		void run() // Dans un thread
 		{
+            using namespace std::chrono;
+            int timestamp_origin = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+
+            std::cerr << "Nice value: " << nice(-20) << std::endl;
 			_running = true;
 			while(_running)
 			{
-				std::this_thread::sleep_for(_step);
-				_time.store(_time.load() + _step.count());
-				for(auto& handle : _handles) handle(_time.load());
+                for(auto& handle : _handles) handle(_time.load());
+                // Attente passive : std::this_thread::sleep_for(_step);
+
+                // Attente active :
+                long timestamp{};
+                while(true)
+                {
+                    timestamp = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+                    if(timestamp - timestamp_origin >= _time.load() + _step.count())
+                        break;
+                }
+
+                _time.store(timestamp - timestamp_origin);
 			}
 		}
 
@@ -62,7 +77,7 @@ class Clock
 	private:
 		std::atomic_llong _time{0};
 		bool _running{false};
-		const std::chrono::milliseconds _step{std::chrono::milliseconds(20)};
+        const std::chrono::milliseconds _step{std::chrono::milliseconds(1)};
 
 		std::vector<handler_type> _handles{};
 

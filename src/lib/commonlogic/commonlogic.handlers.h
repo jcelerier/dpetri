@@ -137,3 +137,19 @@ void handleTokenInfo(osc::ReceivedMessageArgumentStream args)
 	auto p = localClient.model().net().findPlace(std::string(pname));
 	p->setTokenCount(pcount);
 }
+
+void handlePing(osc::ReceivedMessageArgumentStream args)
+{
+    remoteClients[0].send("/pong", localClient.id());
+}
+
+void handlePong(osc::ReceivedMessageArgumentStream args)
+{
+    osc::int32 idRemote;
+    args >> idRemote;
+
+    auto& rclient = remoteClients[idRemote];
+    rclient.setLatency(getTime() - rclient.getPingTimestamp());
+
+    std::cerr << "Latency : " << rclient.latency() << std::endl;
+}

@@ -47,4 +47,8 @@ void ServerLogic::handleConnection(osc::ReceivedMessageArgumentStream args)
 	//// Envoi des informations des autres clients vers le nouveau client
 	for(RemoteClient<pnapi::PetriNet>& c : remoteClients)
 		newClient.initConnectionTo(c);
+
+    //// Envoi d'un message de ping
+    newClient.setPingTimestamp(getTime());
+    newClient.send("/ping");
 }
