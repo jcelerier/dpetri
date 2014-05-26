@@ -41,9 +41,8 @@ class Clock
 		void run() // Dans un thread
 		{
             using namespace std::chrono;
-            int timestamp_origin = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+            long timestamp_origin = duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
 
-            std::cerr << "Nice value: " << nice(-20) << std::endl;
 			_running = true;
 			while(_running)
 			{

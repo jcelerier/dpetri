@@ -97,8 +97,12 @@ void handlePoolDump(osc::ReceivedMessageArgumentStream args)
 	osc::Blob b;
 	args >> id >> b >> osc::EndMessage;
 
+    auto data = std::string(static_cast<const char*>(b.data));
+    std::cerr << std::endl << "handlePoolDump Received : \n" << data << std::endl;
+    data.resize(b.size);
+
 	remoteClients[id].pool().loadFromString(localClient.model().net(),
-											static_cast<const char*>(b.data));
+                                            data.c_str());
 
 	if(id == 0) emit serverPoolChanged(); // Serveur
 }

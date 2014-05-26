@@ -20,6 +20,10 @@ class PetriNetModel
 			PetriNetSerializer<PetriNetImpl> ser(_net);
 			const char* dmp = ser.toSimpleText();
 
+            std::cerr << "\nServer Dump\n"
+                      << dmp
+                      << "\nEnd Server Dump\n";
+
 			c.send(osc::MessageGenerator(1024 + ser.size(),
 										 "/petrinet/dump",
 										 osc::Blob(dmp, ser.size())));

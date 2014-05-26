@@ -30,7 +30,7 @@ class OscSender: public OscSenderInterface
 
 		virtual void send(const osc::OutboundPacketStream& m) override
 		{
-			qDebug() << "Message sent ";
+            qDebug() << "Message sent ";
 			transmitSocket->Send( m.Data(), m.Size() );
 		}
 

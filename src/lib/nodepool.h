@@ -44,7 +44,7 @@ class NodePool
 
 		void loadFromString(const PetriNetImpl& net, const char* str)
 		{
-            std::cerr << str;
+            std::cerr << "\n\n\n=========================\n\n\n" << str << "\n\n\n=========================\n\n\n";
 			_nodes.clear();
 			std::istringstream s(str);
 			std::string line;

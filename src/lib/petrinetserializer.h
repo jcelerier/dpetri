@@ -237,7 +237,7 @@ class PetriNetSerializer<pnapi::PetriNet>
 
 			delete[] serializedData;
 			serializedData = new char[strpnet.size() + 1];
-			_size = strpnet.size() + 1;
+            _size = (unsigned int) strpnet.size() + 1;
 
 			std::copy(strpnet.begin(), strpnet.end(), serializedData);
 			serializedData[strpnet.length()] = 0;
