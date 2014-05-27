@@ -6,6 +6,7 @@ long int getTime()
 
 void startAlgorithm()
 {
+	createTimeTable();
 	localClient.clock().start();
 	// Calculer l'heure de démarrage
     _startMs = getTime();
@@ -47,8 +48,18 @@ void removeToken(std::string name)
 }
 
 // Fonction d'exécution de transition.
-void executeTransition(transition_type* t)
+void executeTransition(transition_type* t, long int origTime)
 {
+	emit sendLog(QString("Ms écoulées : %2. Commencement de : %1, d'une durée de %3 ms.")
+				 .arg(QString::fromStdString(t->getName()))
+				 .arg(QString::number(origTime - _startMs))
+				 .arg(QString::number(t->getCost())));
+	using namespace std::chrono;
+	while(duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count() - origTime <= t->getCost() - 1)
+	{
+		continue;
+	}
+
 	// 1. Vérifier qu'antécédents ont jetons est fait avant
 	for(node_type* n : t->getPreset())
 	{
@@ -62,12 +73,9 @@ void executeTransition(transition_type* t)
 	}
 
     long zeTime = getTime();
-    emit sendLog(QString("[Vraie : %5]Transition effectuée: %1. Ms écoulées : %3. Temps idéal : %4. Retard : %2 ms.")
+	emit sendLog(QString("Ms écoulées : %2. Transition effectuée: %1.")
 				 .arg(QString::fromStdString(t->getName()))
-                 .arg(QString::number((zeTime - _startMs) - t->getCost()))
-                 .arg(QString::number(zeTime - _startMs))
-                 .arg(QString::number(t->getCost()))
-                 .arg(QString::number(zeTime)));
+				 .arg(QString::number(zeTime - _startMs)));
 }
 
 // Quand on reçoit un jeton sur une place, on en informe la machine gérant la transitions suivantes
@@ -102,13 +110,21 @@ void checkTransitions(Clock::time_type time)
 	{
 		if(localClient.pool().hasNode(t->getName()))
 		{
-			if(std::all_of(t->getPreset().begin(),
-						   t->getPreset().end(),
-						   [] (node_type* n)	{return dynamic_cast<place_type*>(n)->getTokenCount() > 0;})
-                    && time >= t->getCost())
+			for(auto& ts : _timeVector)
 			{
-				executeTransition(t);
+				if(ts.transition == t && !ts.activated)
+				{
+					if(std::all_of(t->getPreset().begin(),
+								   t->getPreset().end(),
+								   [] (node_type* n)	{return dynamic_cast<place_type*>(n)->getTokenCount() > 0;}))
+					{
+						ts.activated = true;
+						using namespace std::chrono;
+						ts.runThread = std::thread(&CommonLogic::executeTransition, this, t, duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count());
+					}
+				}
 			}
+
 		}
 	}
 }

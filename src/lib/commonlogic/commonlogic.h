@@ -6,6 +6,7 @@
 #include <QHostInfo>
 #include <functional>
 #include <chrono>
+#include <vector>
 
 #include "clientmanager.h"
 #include "client/localclient.h"
@@ -39,7 +40,13 @@ template<class PetriNetImpl>
 class CommonLogic : public CommonLogicBase
 {
 	private:
-        long int _startMs;
+		long int _startMs;
+
+		struct timeStruct { timeStruct(transition_type* t): transition(t) {}
+							transition_type* transition{nullptr};
+							bool activated{false};
+							std::thread runThread;};
+		std::vector<timeStruct> _timeVector;
 
 	public:
 		ClientManager<PetriNetImpl> remoteClients;
@@ -77,10 +84,10 @@ class CommonLogic : public CommonLogicBase
 			localClient.receiver().addHandler("/pool/ackGive",
 											  &CommonLogic<PetriNetImpl>::handleAckGive, this);
 
-            localClient.receiver().addHandler("/ping",
-                                              &CommonLogic<PetriNetImpl>::handlePing, this);
-            localClient.receiver().addHandler("/pong",
-                                              &CommonLogic<PetriNetImpl>::handlePong, this);
+			localClient.receiver().addHandler("/ping",
+											  &CommonLogic<PetriNetImpl>::handlePing, this);
+			localClient.receiver().addHandler("/pong",
+											  &CommonLogic<PetriNetImpl>::handlePong, this);
 
 			localClient.receiver().addHandler("/execution/start",
 											  &CommonLogic<PetriNetImpl>::handleStart, this);
@@ -90,6 +97,13 @@ class CommonLogic : public CommonLogicBase
 													std::placeholders::_1));
 		}
 
+		void createTimeTable()
+		{
+			for (transition_type* t : localClient.model().net().getTransitions())
+			{
+				_timeVector.push_back(timeStruct{t});
+			}
+		}
 
 #include "commonlogic.handlers.h"
 #include "commonlogic.algorithm.h"
