@@ -44,6 +44,14 @@ class ClientManager
 			return _clients.back();
 		}
 
+		/**
+		 * @brief createConnection
+		 * @param hostname
+		 * @param ip
+		 * @param port
+		 *
+		 * @return
+		 */
 		RemoteClient<PetriNetImpl>& createConnection(std::string hostname,
 									   const std::string& ip,
 									   const int port)

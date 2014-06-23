@@ -52,6 +52,18 @@ class SimpleNode
 		{
 			_postset.push_back(n);
 		}
+
+		void removeNodeFromPostset(SimpleNode* n)
+		{
+			auto it = std::find(_postset.begin(), _postset.end(), n);
+			_postset.erase(it);
+		}
+
+		void removeNodeFromPreset(SimpleNode* n)
+		{
+			auto it = std::find(_preset.begin(), _preset.end(), n);
+			_preset.erase(it);
+		}
 };
 
 class SimplePlace : public SimpleNode
@@ -119,6 +131,12 @@ class SimpleArc
 		SimplePlace& getPlace();
 
 		SimpleTransition& getTransition();
+
+		void clear()
+		{
+			orig->removeNodeFromPostset(dest);
+			dest->removeNodeFromPreset(orig);
+		}
 };
 
 class SimplePetriNet
@@ -202,6 +220,11 @@ class SimplePetriNet
 			if(ptr) return ptr;
 
 			return nullptr;
+		}
+
+		void deleteArc(SimpleArc& a)
+		{
+			a.getSourceNode().remov
 		}
 };
 

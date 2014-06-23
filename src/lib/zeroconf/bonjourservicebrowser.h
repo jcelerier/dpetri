@@ -1,6 +1,7 @@
 #pragma once
 #include <QtCore/QSocketNotifier>
 #include <dns_sd.h>
+#include <QDebug>
 #include "bonjourrecord.h"
 
 class BonjourServiceBrowser : public QObject
